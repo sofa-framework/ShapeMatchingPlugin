@@ -39,6 +39,7 @@
 #include <sofa/core/visual/VisualParams.h>
 
 #include <sofa/helper/decompose.inl>
+#include <sofa/helper/gl/template.h>
 
 
 namespace sofa
