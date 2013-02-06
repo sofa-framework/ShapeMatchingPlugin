@@ -39,13 +39,10 @@
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/core/behavior/ForceField.h>
 #include <sofa/core/behavior/MechanicalState.h>
-#include <sofa/component/forcefield/PlaneForceField.h>
+#include <sofa/core/Mapping.h>
+
 #include <vector>
 
-#include <sofa/component/forcefield/BeamFEMForceField.h>
-#include <sofa/component/mapping/BarycentricMapping.h>
-
-#include <sofa/core/behavior/MechanicalState.h>
 #include <sofa/component/linearsolver/CompressedRowSparseMatrix.h>
 #include <sofa/component/linearsolver/DefaultMultiMatrixAccessor.h>
 
@@ -77,47 +74,45 @@ public:
 	typedef Data<VecDeriv>  DataVecDeriv;
 	typedef typename Coord::value_type Real;
 	typedef typename defaulttype::Rigid3dTypes Rigid;
-        typedef sofa::component::mapping::BarycentricMapping< DataTypes, Rigid3dTypes >   BarycentricMapping3_VtoR;
 
+	typedef defaulttype::Mat<3,3,Real> InBlockType;         // *In* refers to output of the _mapping
+	typedef defaulttype::Mat<6,6,Real> OutBlockType;        // *Out* refers to output of the _mapping
 	typedef defaulttype::Mat<6,3,Real> MappingBlockType;
-	typedef defaulttype::Mat<6,6,Real> BeamBlockType;
 	typedef defaulttype::Mat<3,6,Real> TempBlockType;
-	typedef defaulttype::Mat<3,3,Real> TetraBlockType;
 
 	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<MappingBlockType>::ColBlockConstIterator MappingColBlockConstIterator;
-	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<BeamBlockType>::ColBlockConstIterator BeamColBlockConstIterator;
+	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<OutBlockType>::ColBlockConstIterator OutColBlockConstIterator;
 	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<TempBlockType>::ColBlockConstIterator TempColBlockConstIterator;
 
 	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<MappingBlockType>::RowBlockConstIterator MappingRowBlockConstIterator;
-	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<BeamBlockType>::RowBlockConstIterator BeamRowBlockConstIterator;
+	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<OutBlockType>::RowBlockConstIterator OutRowBlockConstIterator;
 	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<TempBlockType>::RowBlockConstIterator TempRowBlockConstIterator;
 
 	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<MappingBlockType>::BlockConstAccessor MappingBlockConstAccessor;
-	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<BeamBlockType>::BlockConstAccessor BeamBlockConstAccessor;
+	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<OutBlockType>::BlockConstAccessor OutBlockConstAccessor;
 	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<TempBlockType>::BlockConstAccessor TempBlockConstAccessor;
 
 	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<MappingBlockType>::BlockAccessor MappingBlockAccessor;
-	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<BeamBlockType>::BlockAccessor BeamBlockAccessor;
+	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<OutBlockType>::BlockAccessor OutBlockAccessor;
 	typedef typename sofa::component::linearsolver::CompressedRowSparseMatrix<TempBlockType>::BlockAccessor TempBlockAccessor;
 
-        Data<std::string> _beamMO;
-        Data<std::string> _beamBaryMapping;
-        Data<std::string> _beamFEM;        
+        Data<std::string> _mapping;
+        Data<std::string> _mappedMO;
+        Data<std::string> _mappedFEM;        
 
 protected:
-	BeamFEMForceField<Rigid> *mappedBeamForceField;
-	BarycentricMapping3_VtoR *mappingBeamTetra;
-	core::behavior::MechanicalState<DataTypes>* parenchymaMO;
-	core::behavior::MechanicalState<Rigid>* beamMO;
-        sofa::component::linearsolver::DefaultMultiMatrixAccessor* beamMatrixAccessor;
-        sofa::component::linearsolver::CompressedRowSparseMatrix<BeamBlockType>* beamMatrix ;
-        unsigned int nbBeamDOFs, nbTetDOFs;
+        core::behavior::ForceField<Rigid> *mappedForceField;
+        sofa::core::Mapping< DataTypes, Rigid > *mapping;
+	core::behavior::MechanicalState<Rigid>* mappedMO;
+        sofa::component::linearsolver::DefaultMultiMatrixAccessor* mappedFFMatrixAccessor;
+        sofa::component::linearsolver::CompressedRowSparseMatrix<OutBlockType>* mappedFFMatrix ;
+        unsigned int nbOutDOFs, nbInDOFs;
         sofa::helper::system::thread::CTime *timer;
 
 	MappedBeamToTetraForceField(core::behavior::MechanicalState<DataTypes>* /*object*/=NULL, const std::string& /*name*/="")               
-        : _beamMO( initData(&_beamMO, "beamMechObject", "beam mechanical object mapped to the tetra") )
-        , _beamBaryMapping( initData(&_beamBaryMapping, "beamBarycentricMapping", "barycentric mapping between the beam and tetra") )
-        , _beamFEM( initData(&_beamFEM, "beamFEM", "beam FEM force field") )
+        : _mapping( initData(&_mapping, "mapping", "Mapping to integrate into force field") )
+        , _mappedMO( initData(&_mappedMO, "mappedMechObject", "Mechanical object that is output of source mapping") )
+        , _mappedFEM( initData(&_mappedFEM, "mappedFEM", "FEM force field that is tied with output mechanical object") )
 	{		
 
 	}        
