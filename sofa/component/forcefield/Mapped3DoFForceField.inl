@@ -86,14 +86,16 @@ void Mapped3DoFForceField<DataTypes>::bwdInit()
 }
 
 template<class DataTypes>
-void Mapped3DoFForceField<DataTypes>::addForce(const core::MechanicalParams*  /* mparams*/, DataVecDeriv& , const DataVecCoord& , const DataVecDeriv& )
+void Mapped3DoFForceField<DataTypes>::addForce(const core::MechanicalParams*   mparams, DataVecDeriv& , const DataVecCoord& , const DataVecDeriv& )
 {    
+    mparams->kFactor();
     //std::cout << "AddForce in MappedFF" << std::endl;
 }
 
 template<class DataTypes>
-void Mapped3DoFForceField<DataTypes>::addDForce(const core::MechanicalParams*  /* mparams */, DataVecDeriv& , const DataVecDeriv& )
+void Mapped3DoFForceField<DataTypes>::addDForce(const core::MechanicalParams*  mparams, DataVecDeriv& , const DataVecDeriv& )
 {    
+    mparams->kFactor();
     //double k = mparams->kFactor();
     //std::cout << "AddDForce in MappedFF" << std::endl;
 }
