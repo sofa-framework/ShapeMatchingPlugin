@@ -15,13 +15,21 @@ HEADERS += sofa/component/initMiscForcefieldDev.h \
            sofa/component/forcefield/ShapeMatchingForceField.h \
            sofa/component/forcefield/ShapeMatchingForceField.inl \
            sofa/component/forcefield/MappedBeamToTetraForceField.h \
-           sofa/component/forcefield/MappedBeamToTetraForceField.inl
+           sofa/component/forcefield/MappedBeamToTetraForceField.inl \
+           sofa/component/forcefield/Mapped3DoFForceField.h \
+           sofa/component/forcefield/Mapped3DoFForceField.inl \
+	   sofa/component/controller/EvolutionParameterController.h \
+	   sofa/component/controller/EvolutionParameterController.inl 
+
 
 SOURCES += main.cpp \
 		   sofa/component/initMiscForcefieldDev.cpp \
 		   sofa/component/container/ShapeMatchingRotationFinder.cpp \
            sofa/component/forcefield/ShapeMatchingForceField.cpp \
-           sofa/component/forcefield/MappedBeamToTetraForceField.cpp
+           sofa/component/forcefield/MappedBeamToTetraForceField.cpp \
+           sofa/component/forcefield/Mapped3DoFForceField.cpp \
+	   sofa/component/controller/EvolutionParameterController.cpp
+
 
 
 # Make sure there are no cross-dependencies
