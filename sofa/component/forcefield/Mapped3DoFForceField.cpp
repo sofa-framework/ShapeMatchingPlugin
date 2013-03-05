@@ -22,7 +22,9 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <sofa/component/initMiscForcefieldDev.h>
+#include <sofa/component/forcefield/Mapped3DoFForceField.inl>
+#include <sofa/defaulttype/Vec3Types.h>
+#include <sofa/core/ObjectFactory.h>
 
 namespace sofa
 {
@@ -30,20 +32,39 @@ namespace sofa
 namespace component
 {
 
-	void SOFA_MISC_FORCEFIELD_DEV_API initMiscForcefieldDev()
-	{
-		static bool first = true;
-		if (first)
-		{
-			first = false;
-		}
-	}
+namespace forcefield
+{
 
-SOFA_LINK_CLASS(ShapeMatchingRotationFinder)
-SOFA_LINK_CLASS(ShapeMatchingForceField)
-SOFA_LINK_CLASS(MappedBeamToTetraForceField)
-SOFA_LINK_CLASS(Mapped3DoFForceField)
+using namespace sofa::defaulttype;
+
+
+SOFA_DECL_CLASS(Mapped3DoFForceField)
+
+// Register in the Factory
+int Mapped3DoFForceFieldClass = core::RegisterObject("A custom force field")
+#ifndef SOFA_FLOAT
+.add< Mapped3DoFForceField<Vec3dTypes> >()
+//.add< Mapped3DoFForceField<Rigid3dTypes> >()
+#endif
+#ifndef SOFA_DOUBLE
+.add< Mapped3DoFForceField<Vec3fTypes> >()
+//.add< Mapped3DoFForceField<Rigid3fTypes> >()
+#endif
+;
+
+#ifndef SOFA_FLOAT
+template class Mapped3DoFForceField<Vec3dTypes>;
+//template class Mapped3DoFForceField<Rigid3dTypes>;
+#endif
+#ifndef SOFA_DOUBLE
+template class Mapped3DoFForceField<Vec3fTypes>;
+//template class Mapped3DoFForceField<Rigid3fTypes>;
+#endif
+;
+
+} // namespace forcefield
 
 } // namespace component
 
 } // namespace sofa
+
