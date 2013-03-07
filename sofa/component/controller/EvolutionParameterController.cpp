@@ -32,6 +32,7 @@
 //
 //
 #define SOFA_COMPONENT_CONTROLLER_EVOLUTIONPARAMETERCONTROLLER_CPP
+#include <sofa/component/initMiscForcefieldDev.h>
 #include <sofa/component/controller/EvolutionParameterController.inl>
 #include <sofa/core/ObjectFactory.h>
 #include <sofa/defaulttype/VecTypes.h>
@@ -64,12 +65,12 @@ int EvolutionParameterControllerClass = core::RegisterObject("Simple controller 
 ;
 
 #ifndef SOFA_FLOAT
-template class SOFA_USER_INTERACTION_API EvolutionParameterController<Vec3dTypes>;
-template class SOFA_USER_INTERACTION_API EvolutionParameterController<Rigid3dTypes>;
+template class SOFA_MISC_FORCEFIELD_DEV_API EvolutionParameterController<Vec3dTypes>;
+template class SOFA_MISC_FORCEFIELD_DEV_API EvolutionParameterController<Rigid3dTypes>;
 #endif
 #ifndef SOFA_DOUBLE
-template class SOFA_USER_INTERACTION_API EvolutionParameterController<Vec3fTypes>;
-template class SOFA_USER_INTERACTION_API EvolutionParameterController<Rigid3fTypes>;
+template class SOFA_MISC_FORCEFIELD_DEV_API EvolutionParameterController<Vec3fTypes>;
+template class SOFA_MISC_FORCEFIELD_DEV_API EvolutionParameterController<Rigid3fTypes>;
 #endif
 
 
