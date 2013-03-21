@@ -38,7 +38,7 @@
 #include <sofa/core/objectmodel/KeypressedEvent.h>
 #include <sofa/core/visual/VisualParams.h>
 
-#include <sofa/helper/decompose.inl>
+#include <sofa/helper/decompose.h>
 #include <sofa/helper/gl/template.h>
 
 
