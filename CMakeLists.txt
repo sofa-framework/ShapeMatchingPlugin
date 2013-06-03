@@ -36,7 +36,7 @@ set(README_FILE "SofaMiscForcefieldDev.txt")
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 
-set(COMPILER_DEFINES "SOFA_BUILD_MISC_FORCEFIELD_DEV")
-set(LINKER_DEPENDENCIES SofaBoundaryCondition SofaSimpleFem SofaBaseLinearSolver SofaUserInteraction )
+AddCompilerDefinitions("SOFA_BUILD_MISC_FORCEFIELD_DEV")
+AddLinkerDependencies(SofaBoundaryCondition SofaSimpleFem SofaBaseLinearSolver SofaUserInteraction )
 
 include(${SOFA_CMAKE_DIR}/postProject.cmake)
