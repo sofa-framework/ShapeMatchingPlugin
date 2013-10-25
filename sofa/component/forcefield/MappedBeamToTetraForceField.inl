@@ -89,13 +89,13 @@ template<class DataTypes>
 void MappedBeamToTetraForceField<DataTypes>::addForce(const core::MechanicalParams*  mparams, DataVecDeriv& , const DataVecCoord& , const DataVecDeriv& )
 {    
     //std::cout << "AddForce in MappedFF" << std::endl;
-    mparams->kFactor();
+    mparams->setKFactorUsed(true);
 }
 
 template<class DataTypes>
 void MappedBeamToTetraForceField<DataTypes>::addDForce(const core::MechanicalParams*  mparams , DataVecDeriv& , const DataVecDeriv& )
 {    
-    mparams->kFactor();
+    mparams->setKFactorUsed(true);
     //double k = mparams->kFactor();
     //std::cout << "AddDForce in MappedFF" << std::endl;
 }

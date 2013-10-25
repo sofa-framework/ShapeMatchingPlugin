@@ -89,7 +89,7 @@ void ShapeMatchingForceField<DataTypes>::addDForce(const core::MechanicalParams*
     const VecCoord& x0 = *this->mstate->getX0();
 
     df1.resize(dp1.size());
-    const Real fact = stiffness.getValue()*mparams->kFactor();
+    const Real fact = stiffness.getValue()*mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
     for (unsigned int i=0; i<vNeighborhood.size(); ++i)
     {
         const Mat3x3& dR = vDR[i];
