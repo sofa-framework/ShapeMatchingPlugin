@@ -43,8 +43,8 @@
 
 #include <vector>
 
-#include <sofa/component/linearsolver/CompressedRowSparseMatrix.h>
-#include <sofa/component/linearsolver/DefaultMultiMatrixAccessor.h>
+#include <BaseLinearSolver/CompressedRowSparseMatrix.h>
+#include <BaseLinearSolver/DefaultMultiMatrixAccessor.h>
 
 namespace sofa
 {
