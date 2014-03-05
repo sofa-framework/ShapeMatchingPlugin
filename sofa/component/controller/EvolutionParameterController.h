@@ -37,7 +37,7 @@
 #ifndef SOFA_COMPONENT_CONTROLLER_AWESOMECONTROLLER_H
 #define SOFA_COMPONENT_CONTROLLER_AWESOMECONTROLLER_H
 
-#include <UserInteraction/controller/Controller.h>
+#include <sofa/component/controller/Controller.h>
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/defaulttype/RigidTypes.h>
 #include <sofa/core/behavior/MechanicalState.h>
