@@ -137,6 +137,12 @@ public:
     virtual void addForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& v);
     virtual void addDForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& df, const DataVecDeriv& dx);
 
+    virtual SReal getPotentialEnergy(const core::MechanicalParams* /*mparams*/, const DataVecCoord&  /*x */) const
+    {
+        // NOT IMPLEMENTED
+        return 0.0;
+    }
+
     void draw(const core::visual::VisualParams* vparams);
 
     /// Pre-construction check method called by ObjectFactory.
