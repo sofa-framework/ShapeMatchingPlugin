@@ -31,8 +31,6 @@
 #include <sofa/core/objectmodel/Event.h>
 #include <sofa/component/container/ShapeMatchingRotationFinder.h>
 
-#include <sofa/component/component.h>
-
 namespace sofa
 {
 

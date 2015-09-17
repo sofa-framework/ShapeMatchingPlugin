@@ -1,0 +1,14 @@
+# CMake package configuration file for the SofaMiscForcefieldDev plugin
+
+@PACKAGE_INIT@
+
+find_package(SofaGeneral REQUIRED)
+
+if(NOT TARGET SofaMiscForcefieldDev)
+	include("${CMAKE_CURRENT_LIST_DIR}/SofaMiscForcefieldDevTargets.cmake")
+endif()
+
+check_required_components(SofaMiscForcefieldDev)
+
+set(SofaMiscForcefieldDev_LIBRARIES SofaMiscForcefieldDev)
+set_and_check(SofaMiscForcefieldDev_INCLUDE_DIRS @PACKAGE_SOFAMISCFORCEFIELDDEV_INCLUDE_DIR@ ${SofaGeneral_INCLUDE_DIRS})

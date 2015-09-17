@@ -39,8 +39,6 @@
 
 #include <sofa/defaulttype/Vec3Types.h>
 
-#include <sofa/component/component.h>
-
 /*
  *	This class find Rotation Matrix from two position states (rest and current state)
  *	got from an associated Mechanical State.
