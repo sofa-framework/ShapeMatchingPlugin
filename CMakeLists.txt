@@ -36,5 +36,4 @@ target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${CMAKE_CUR
 target_link_libraries(${PROJECT_NAME} SofaBoundaryCondition SofaSimpleFem SofaBaseLinearSolver SofaUserInteraction)
 
 ## Install rules for the library and headers; CMake package configurations files
-include(SofaPackageConfigHelpers)
 sofa_create_package(SofaMiscForcefieldDev 0.1 ${PROJECT_NAME} SofaMiscForcefieldDev)
