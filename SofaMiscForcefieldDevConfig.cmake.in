@@ -11,4 +11,4 @@ endif()
 check_required_components(SofaMiscForcefieldDev)
 
 set(SofaMiscForcefieldDev_LIBRARIES SofaMiscForcefieldDev)
-set_and_check(SofaMiscForcefieldDev_INCLUDE_DIRS @PACKAGE_SOFAMISCFORCEFIELDDEV_INCLUDE_DIR@ ${SofaGeneral_INCLUDE_DIRS})
+#set_and_check(SofaMiscForcefieldDev_INCLUDE_DIRS @PACKAGE_SOFAMISCFORCEFIELDDEV_INCLUDE_DIR@ ${SofaGeneral_INCLUDE_DIRS})
