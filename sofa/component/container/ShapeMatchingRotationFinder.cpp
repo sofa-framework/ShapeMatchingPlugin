@@ -29,6 +29,7 @@
  *      Author: froy
  */
 #define SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_CPP
+#include <sofa/defaulttype/Mat.h>
 #include <sofa/component/initMiscForcefieldDev.h>
 #include <sofa/component/container/ShapeMatchingRotationFinder.inl>
 #include <sofa/core/ObjectFactory.h>
