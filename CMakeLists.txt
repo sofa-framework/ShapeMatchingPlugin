@@ -19,12 +19,12 @@ set(HEADER_FILES
 )
 
 set(SOURCE_FILES
-    main.cpp
+	initSofaMiscForcefieldDev.cpp
 	sofa/component/initMiscForcefieldDev.cpp
 	sofa/component/container/ShapeMatchingRotationFinder.cpp
-    sofa/component/forcefield/ShapeMatchingForceField.cpp
-    sofa/component/forcefield/MappedBeamToTetraForceField.cpp
-    sofa/component/forcefield/Mapped3DoFForceField.cpp
+	sofa/component/forcefield/ShapeMatchingForceField.cpp
+	sofa/component/forcefield/MappedBeamToTetraForceField.cpp
+	sofa/component/forcefield/Mapped3DoFForceField.cpp
 	sofa/component/controller/EvolutionParameterController.cpp
 )
 
