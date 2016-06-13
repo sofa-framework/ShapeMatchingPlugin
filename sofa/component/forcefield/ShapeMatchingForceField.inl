@@ -34,7 +34,7 @@
 #include <sofa/helper/system/glut.h>
 #include <assert.h>
 #include <iostream>
-#include <sofa/simulation/Node.h>
+#include <sofa/simulation/common/Node.h>
 
 namespace sofa
 {
