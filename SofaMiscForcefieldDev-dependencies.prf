@@ -1,2 +1,0 @@
-declare(SofaMiscForcefieldDev, applications-dev/plugins/SofaMiscForcefieldDev, sofa_boundary_condition sofa_simple_fem sofa_base_linear_solver sofa_user_interaction )
-enable(SofaMiscForcefieldDev)
