@@ -1,14 +1,11 @@
-# CMake package configuration file for the SofaMiscForcefieldDev plugin
+# CMake package configuration file for the ShapeMatchingPlugin plugin
 
 @PACKAGE_INIT@
 
-find_package(SofaGeneral REQUIRED)
+find_package(SofaBase QUIET REQUIRED)
 
-if(NOT TARGET SofaMiscForcefieldDev)
-	include("${CMAKE_CURRENT_LIST_DIR}/SofaMiscForcefieldDevTargets.cmake")
+if(NOT TARGET @PROJECT_NAME@)
+    include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
 endif()
 
-check_required_components(SofaMiscForcefieldDev)
-
-set(SofaMiscForcefieldDev_LIBRARIES "SofaMiscForcefieldDev")
-set_and_check(SOFAMISCFORCEFIELDDEV_INCLUDE_DIRS "@SOFAMISCFORCEFIELDDEV_INCLUDE_DIRS@")
+check_required_components(@PROJECT_NAME@)

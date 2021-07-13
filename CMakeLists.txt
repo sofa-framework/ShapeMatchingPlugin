@@ -1,53 +1,33 @@
-cmake_minimum_required(VERSION 2.8.12)
-project(SofaMiscForcefieldDev)
+cmake_minimum_required(VERSION 3.12)
+project(ShapeMatchingPlugin LANGUAGES CXX)
 
-find_package(SofaAdvanced REQUIRED)
-
+set(SHAPEMATCHINGPLUGIN_SRC "src/${PROJECT_NAME}")
 
 set(HEADER_FILES
-    sofa/component/initMiscForcefieldDev.h
-    sofa/component/container/ShapeMatchingRotationFinder.h
-    sofa/component/container/ShapeMatchingRotationFinder.inl
-    sofa/component/forcefield/ShapeMatchingForceField.h
-    sofa/component/forcefield/ShapeMatchingForceField.inl
-    sofa/component/forcefield/MappedBeamToTetraForceField.h
-    sofa/component/forcefield/MappedBeamToTetraForceField.inl
-    sofa/component/forcefield/Mapped3DoFForceField.h
-    sofa/component/forcefield/Mapped3DoFForceField.inl
-	sofa/component/controller/EvolutionParameterController.h
-	sofa/component/controller/EvolutionParameterController.inl
+    ${SHAPEMATCHINGPLUGIN_SRC}/config.h.in
+    ${SHAPEMATCHINGPLUGIN_SRC}/initShapeMatchingPlugin.h
+    ${SHAPEMATCHINGPLUGIN_SRC}/ShapeMatchingRotationFinder.h
+    ${SHAPEMATCHINGPLUGIN_SRC}/ShapeMatchingRotationFinder.inl
+    ${SHAPEMATCHINGPLUGIN_SRC}/ShapeMatchingForceField.h
+    ${SHAPEMATCHINGPLUGIN_SRC}/ShapeMatchingForceField.inl
 )
 
 set(SOURCE_FILES
-	initSofaMiscForcefieldDev.cpp
-	sofa/component/initMiscForcefieldDev.cpp
-	sofa/component/container/ShapeMatchingRotationFinder.cpp
-	sofa/component/forcefield/ShapeMatchingForceField.cpp
-	sofa/component/forcefield/MappedBeamToTetraForceField.cpp
-	sofa/component/forcefield/Mapped3DoFForceField.cpp
-	sofa/component/controller/EvolutionParameterController.cpp
+	${SHAPEMATCHINGPLUGIN_SRC}/initShapeMatchingPlugin.cpp
+    ${SHAPEMATCHINGPLUGIN_SRC}/ShapeMatchingRotationFinder.cpp
+    ${SHAPEMATCHINGPLUGIN_SRC}/ShapeMatchingForceField.cpp
 )
 
-set(README_FILE SofaMiscForcefieldDev.txt)
-
+sofa_find_package(SofaBase REQUIRED) # SofaBaseLinearSolver
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} PUBLIC SofaBaseLinearSolver)
 
-set(SOFAMISCFORCEFIELDDEV_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(${PROJECT_NAME} PUBLIC "$<BUILD_INTERFACE:${SOFAMISCFORCEFIELDDEV_INCLUDE_DIRS}>")
-target_include_directories(${PROJECT_NAME} PUBLIC "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-
-target_link_libraries(${PROJECT_NAME} SofaBoundaryCondition SofaSimpleFem SofaBaseLinearSolver SofaUserInteraction)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DSOFA_BUILD_MISC_FORCEFIELD_DEV")
-
-
-
-## Install rules for the library and headers; CMake package configurations files
-sofa_create_package(${PROJECT_NAME} 0.1 ${PROJECT_NAME} ${PROJECT_NAME})
-
-install(DIRECTORY sofa
-        DESTINATION include/${PROJECT_NAME}
-        FILES_MATCHING PATTERN "*.h" PATTERN "*hpp" PATTERN "*.inl"
+sofa_create_package_with_targets(
+    PACKAGE_NAME ${PROJECT_NAME}
+    PACKAGE_VERSION ${Sofa_VERSION}
+    TARGETS ${PROJECT_NAME} AUTO_SET_TARGET_PROPERTIES
+    INCLUDE_SOURCE_DIR "src"
+    INCLUDE_INSTALL_DIR "${PROJECT_NAME}"
+    RELOCATABLE "plugins"
 )

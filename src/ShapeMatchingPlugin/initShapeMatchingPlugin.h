@@ -22,56 +22,11 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#include <ShapeMatchingPlugin/initShapeMatchingPlugin.h>
-#include <sofa/core/ObjectFactory.h>
+#include <ShapeMatchingPlugin/config.h>
 
 namespace sofa::component
 {
 
-	extern "C" {
-		SOFA_SHAPEMATCHINGPLUGIN_API void initExternalModule();
-		SOFA_SHAPEMATCHINGPLUGIN_API const char* getModuleName();
-		SOFA_SHAPEMATCHINGPLUGIN_API const char* getModuleVersion();
-		SOFA_SHAPEMATCHINGPLUGIN_API const char* getModuleLicense();
-		SOFA_SHAPEMATCHINGPLUGIN_API const char* getModuleDescription();
-		SOFA_SHAPEMATCHINGPLUGIN_API const char* getModuleComponentList();
-	}
-
-	void initExternalModule()
-	{
-		static bool first = true;
-		if (first)
-		{
-			initShapeMatchingPlugin();
-			first = false;
-		}
-	}
-
-	const char* getModuleName()
-	{
-		return "ShapeMatchingPlugin";
-	}
-
-	const char* getModuleVersion()
-	{
-		return "1.0";
-	}
-
-	const char* getModuleLicense()
-	{
-		return "Private";
-	}
-
-	const char* getModuleDescription()
-	{
-		return "Plugin with ShapeMatchingPlugin";
-	}
-
-	const char* getModuleComponentList()
-	{
-		/// string containing the names of the classes provided by the plugin
-		static std::string classes = sofa::core::ObjectFactory::getInstance()->listClassesFromTarget(sofa_tostring(SOFA_TARGET));
-		return classes.c_str();
-	}
+void SOFA_SHAPEMATCHINGPLUGIN_API initShapeMatchingPlugin();
 
 } // namespace sofa::component
