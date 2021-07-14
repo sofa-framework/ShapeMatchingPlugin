@@ -36,16 +36,22 @@ namespace sofa::component::forcefield
 {
 
 template<class DataTypes>
+ShapeMatchingForceField<DataTypes>::ShapeMatchingForceField()
+:  d_stiffness(initData(&d_stiffness, (Real)500, "stiffness", "force stiffness"))
+{
+}
+
+template<class DataTypes>
 void ShapeMatchingForceField<DataTypes>::addForce(const core::MechanicalParams* /* mparams */ /* PARAMS FIRST */, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& /* v */)
 {
     sofa::helper::WriteAccessor< core::objectmodel::Data< VecDeriv > > f1 = f;
     sofa::helper::ReadAccessor< core::objectmodel::Data< VecCoord > > p1 = x;
 
     type::Mat<3,1,Real> q;
-    const type::vector<Mat3x3>& vR = rotationFinder->getRotations();
-    const VecCoord& vcm = rotationFinder->getCM();
-    const VecCoord& vcm0 = rotationFinder->getCM0();
-    const typename container::ShapeMatchingRotationFinder<DataTypes>::VecNeighborhood& vNeighborhood = rotationFinder->getNeighborhood();
+    const type::vector<Mat3x3>& vR = m_rotationFinder->getRotations();
+    const VecCoord& vcm = m_rotationFinder->getCM();
+    const VecCoord& vcm0 = m_rotationFinder->getCM0();
+    const typename container::ShapeMatchingRotationFinder<DataTypes>::VecNeighborhood& vNeighborhood = m_rotationFinder->getNeighborhood();
     const VecCoord& x0 = this->mstate->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
     Coord gi, xi;
 
@@ -62,7 +68,7 @@ void ShapeMatchingForceField<DataTypes>::addForce(const core::MechanicalParams* 
             unsigned int neighbor_i = *it;
             gi = Xcm + R*(x0[neighbor_i] - Xcm0);
             xi = p1[neighbor_i];
-            f1[neighbor_i] += (gi-xi)*stiffness.getValue();
+            f1[neighbor_i] += (gi-xi)*d_stiffness.getValue();
         }
     }
 }
@@ -73,13 +79,13 @@ void ShapeMatchingForceField<DataTypes>::addDForce(const core::MechanicalParams*
     sofa::helper::WriteAccessor< core::objectmodel::Data< VecDeriv > > df1 = df;
     sofa::helper::ReadAccessor< core::objectmodel::Data< VecDeriv > > dp1 = dx;
 
-    const type::vector<Mat3x3>& vDR = rotationFinder->getDRotations(dx.getValue());
-    const VecCoord& vcm0 = rotationFinder->getCM0();
-    const typename container::ShapeMatchingRotationFinder<DataTypes>::VecNeighborhood& vNeighborhood = rotationFinder->getNeighborhood();
+    const type::vector<Mat3x3>& vDR = m_rotationFinder->getDRotations(dx.getValue());
+    const VecCoord& vcm0 = m_rotationFinder->getCM0();
+    const typename container::ShapeMatchingRotationFinder<DataTypes>::VecNeighborhood& vNeighborhood = m_rotationFinder->getNeighborhood();
     const VecCoord& x0 = this->mstate->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
     df1.resize(dp1.size());
-    const Real fact = stiffness.getValue()*mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
+    const Real fact = d_stiffness.getValue()*mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
     for (unsigned int i=0; i<vNeighborhood.size(); ++i)
     {
         const Mat3x3& dR = vDR[i];
@@ -98,6 +104,13 @@ void ShapeMatchingForceField<DataTypes>::addDForce(const core::MechanicalParams*
             df1[ni] += (dgi - dxi)*fact;
         }
     }
+}
+
+template<class DataTypes>
+SReal ShapeMatchingForceField<DataTypes>::getPotentialEnergy(const core::MechanicalParams* /*mparams*/, const DataVecCoord&  /*x */) const
+{
+    // NOT IMPLEMENTED
+    return 0.0;
 }
 
 template<class DataTypes>

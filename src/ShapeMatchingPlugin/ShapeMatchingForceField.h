@@ -33,15 +33,9 @@
 namespace sofa::component::forcefield
 {
 
-/// This class can be overridden if needed for additionnal storage within template specializations.
-template<class DataTypes>
-class ShapeMatchingForceFieldInternalData
-{
-public:
-};
-
 /// Meshless deformations based on shape matching
-
+/// https://www.researchgate.net/publication/220184721_Meshless_deformations_based_on_shape_matching
+/// 
 template<class DataTypes>
 class ShapeMatchingForceField : public core::behavior::ForceField<DataTypes>
 {
@@ -60,81 +54,17 @@ public:
     typedef core::objectmodel::Data<VecDeriv> DataVecDeriv;
 	
 protected:
-    class Contact
-    {
-    public:
-        int index;
-        Coord normal;
-        Real fact;
-	Contact( int index=0, Coord normal=Coord(),Real fact=Real(0))
-	  : index(index),normal(normal),fact(fact)
-	  {
-	  }
-
-        inline friend std::istream& operator >> ( std::istream& in, Contact& c ){
-	  in>>c.index>>c.normal>>c.fact;
-            return in;
-        }
-
-        inline friend std::ostream& operator << ( std::ostream& out, const Contact& c ){
-	  out << c.index << " " << c.normal << " " << c.fact ;
-	  return out;
-        }
-
-    };
-
-    Data<sofa::type::vector<Contact> > contacts;
-
-    core::behavior::MechanicalState<DataTypes> * centerDOF;
-
-    ShapeMatchingForceFieldInternalData<DataTypes> data;
-
-	ShapeMatchingForceField()
-      : contacts(initData(&contacts,"contacts", "Contacts"))
-      , centerDOF(NULL)
-      , sphereCenter(initData(&sphereCenter, "center", "sphere center"))
-      , sphereRadius(initData(&sphereRadius, (Real)1, "radius", "sphere radius"))
-      , stiffness(initData(&stiffness, (Real)500, "stiffness", "force stiffness"))
-      , damping(initData(&damping, (Real)5, "damping", "force damping"))
-      , color(initData(&color, type::RGBAColor::blue(), "color", "sphere color"))
-      , bDraw(initData(&bDraw, true, "draw", "enable/disable drawing of the sphere"))
-      , centerState(initData(&centerState, "centerState", "path to the MechanicalState controlling the center point"))
-      , filter(initData(&filter, (Real)0, "filter", "filter"))
-    {
-    }
+    ShapeMatchingForceField();
 
 public:
+    Data<Real> d_stiffness;
+    container::ShapeMatchingRotationFinder<DataTypes>* m_rotationFinder;
 
-    Data<Coord> sphereCenter;
-    Data<Real> sphereRadius;
-    Data<Real> stiffness;
-    Data<Real> damping;
-    Data<type::RGBAColor> color;
-    Data<bool> bDraw;
-    Data<std::string> centerState;
-    Data < Real > filter;
-    container::ShapeMatchingRotationFinder<DataTypes>* rotationFinder;
+    virtual void addForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& v) override;
+    virtual void addDForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& df, const DataVecDeriv& dx) override;
+    virtual SReal getPotentialEnergy(const core::MechanicalParams* /*mparams*/, const DataVecCoord&  /*x */) const override;
 
-    void setStiffness(Real stiff)
-    {
-        stiffness.setValue( stiff );
-    }
-
-    void setDamping(Real damp)
-    {
-        damping.setValue( damp );
-    }
-
-    virtual void addForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& v);
-    virtual void addDForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& df, const DataVecDeriv& dx);
-
-    virtual SReal getPotentialEnergy(const core::MechanicalParams* /*mparams*/, const DataVecCoord&  /*x */) const
-    {
-        // NOT IMPLEMENTED
-        return 0.0;
-    }
-
-    void draw(const core::visual::VisualParams* vparams);
+    void draw(const core::visual::VisualParams* vparams) override;
 
     /// Pre-construction check method called by ObjectFactory.
     template<class T>
@@ -158,7 +88,7 @@ public:
 
         if (context)
         {
-            obj->rotationFinder = dynamic_cast< ShapeMatchingRotationFinder<DataTypes>* >(context->get< ShapeMatchingRotationFinder<DataTypes> >());
+            obj->m_rotationFinder = dynamic_cast< ShapeMatchingRotationFinder<DataTypes>* >(context->get< ShapeMatchingRotationFinder<DataTypes> >());
         }
 
 
