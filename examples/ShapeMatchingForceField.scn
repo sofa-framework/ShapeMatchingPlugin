@@ -19,7 +19,7 @@
         <MechanicalObject src="@loader" scale="1" dz="10" />
         <UniformMass totalMass="3" />
         <RotationFinder numOfClusters="50" radius="0" />
-        <ShapeMatchingForceField name="ShapeMatching" stiffness="10000" />
+        <ShapeMatchingForceField name="ShapeMatching" stiffness="100" />
         <Node name="Visu">
             <MeshObjLoader name="loader" filename="mesh/dragon.obj"/>
             <OglModel name="Visual" src="@loader" color="red" dz="10" />

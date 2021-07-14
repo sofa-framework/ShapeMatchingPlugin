@@ -55,14 +55,14 @@ using namespace sofa::core::topology;
 
 template <class DataTypes>
 ShapeMatchingRotationFinder<DataTypes>::ShapeMatchingRotationFinder()
-: topo(NULL)
-, axisToFlip(initData(&axisToFlip, int(-1), "axisToFlip", "Flip Axis"))
-, showRotations(initData(&showRotations, bool(false), "showRotations", "Show Rotations"))
-, neighborhoodLevel(initData(&neighborhoodLevel, int(1), "neighborhoodLevel", "Neighborhood level"))
-, numOfClusters(initData(&numOfClusters, int(1), "numOfClusters", "Number of clusters"))
-, maxIter(initData(&maxIter, unsigned(500), "maxIter", "Number of iterations to build the neighborhood"))
-, epsilon(initData(&epsilon, Real(0.0000000001), "epsilon", "epsilon"))
-, radius(initData(&radius, Real(0.001), "radius", "radius between Cm and point position"))
+: m_topo(NULL)
+, d_axisToFlip(initData(&d_axisToFlip, int(-1), "axisToFlip", "Flip Axis"))
+, d_showRotations(initData(&d_showRotations, bool(false), "showRotations", "Show Rotations"))
+, d_neighborhoodLevel(initData(&d_neighborhoodLevel, int(1), "neighborhoodLevel", "Neighborhood level"))
+, d_numOfClusters(initData(&d_numOfClusters, int(1), "numOfClusters", "Number of clusters"))
+, d_maxIter(initData(&d_maxIter, unsigned(500), "maxIter", "Number of iterations to build the neighborhood"))
+, d_epsilon(initData(&d_epsilon, Real(0.0000000001), "epsilon", "epsilon"))
+, d_radius(initData(&d_radius, Real(0.001), "radius", "radius between Cm and point position"))
 {
 
 }
@@ -78,16 +78,16 @@ void ShapeMatchingRotationFinder<DataTypes>::init()
 {
         //Retrieve informations
 	//- Mechanical State
-	this->getContext()->get(mechanicalState);
+	this->getContext()->get(m_mechanicalState);
 
-	if (!mechanicalState)
+	if (!m_mechanicalState)
 	{
-	    serr << "ERROR: RotationFinder has not found any MechanicalState" << sendl;
+	    serr << "ERROR: RotationFinder has not found any mechanicalState" << sendl;
 	    return;
 	}
 
 	//- Topology Container
- 	this->getContext()->get(topo);
+ 	this->getContext()->get(m_topo);
 // 
 // 	if (!topo)
 // 	{
@@ -95,75 +95,75 @@ void ShapeMatchingRotationFinder<DataTypes>::init()
 // 	    return;
 // 	}
 
-	oldRestPositionSize = 0;
+	m_oldRestPositionSize = 0;
 }
 
 template <class DataTypes>
 void ShapeMatchingRotationFinder<DataTypes>::ComputeNeighborhoodFromNeighborhood()
 {
 	Neighborhood neighborhood;
-	for (unsigned int i=0; i<lastPointNeighborhood.size(); ++i)
+	for (unsigned int i=0; i<m_lastPointNeighborhood.size(); ++i)
 	{
 		neighborhood.clear();
 		Neighborhood::const_iterator it, itEnd;
-		for (it = lastPointNeighborhood[i].begin(), itEnd = lastPointNeighborhood[i].end(); it != itEnd ; ++it)
+		for (it = m_lastPointNeighborhood[i].begin(), itEnd = m_lastPointNeighborhood[i].end(); it != itEnd ; ++it)
 		{
-			const type::vector<Point>& vertexVertexShell = topo->getVerticesAroundVertex(*it);
+			const type::vector<Point>& vertexVertexShell = m_topo->getVerticesAroundVertex(*it);
 			for (unsigned int j=0 ; j<vertexVertexShell.size(); ++j)
 			{
 				neighborhood.insert(vertexVertexShell[j]);
 			}
 		}
 
-		std::insert_iterator<Neighborhood> result(pointNeighborhood[i], pointNeighborhood[i].begin());
-		set_union(pointNeighborhood[i].begin(), pointNeighborhood[i].end(), neighborhood.begin(), neighborhood.end(), result);
-		lastPointNeighborhood[i] = neighborhood;
+		std::insert_iterator<Neighborhood> result(m_pointNeighborhood[i], m_pointNeighborhood[i].begin());
+		set_union(m_pointNeighborhood[i].begin(), m_pointNeighborhood[i].end(), neighborhood.begin(), neighborhood.end(), result);
+		m_lastPointNeighborhood[i] = neighborhood;
 	}
 }
 
 template <class DataTypes>
 void ShapeMatchingRotationFinder<DataTypes>::computeNeighborhood()
 {
-    const unsigned int nbPoints =  mechanicalState->getSize();
-    if(topo && neighborhoodLevel.getValue())
+    const unsigned int nbPoints =  m_mechanicalState->getSize();
+    if(m_topo && d_neighborhoodLevel.getValue())
     {
-        pointNeighborhood.resize(nbPoints);
-        lastPointNeighborhood.resize(nbPoints);
+        m_pointNeighborhood.resize(nbPoints);
+        m_lastPointNeighborhood.resize(nbPoints);
 
         for (unsigned int i=0; i<nbPoints; ++i)
         {
-            pointNeighborhood[i].insert(i);
-            lastPointNeighborhood[i].insert(i);
+            m_pointNeighborhood[i].insert(i);
+            m_lastPointNeighborhood[i].insert(i);
         }
 
-        for (int i=0; i<neighborhoodLevel.getValue() ; ++i)
+        for (int i=0; i<d_neighborhoodLevel.getValue() ; ++i)
         {
             ComputeNeighborhoodFromNeighborhood();
         }
     }
     else
     {
-        const VecCoord& X0 = mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+        const VecCoord& X0 = m_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
         type::vector< unsigned int > clusterInPoint;
     
         clusterInPoint.resize(nbPoints);
-        pointNeighborhood.resize(min<int>(numOfClusters.getValue(), nbPoints));
+        m_pointNeighborhood.resize(min<int>(d_numOfClusters.getValue(), nbPoints));
     
-        if (pointNeighborhood.size()>1)
+        if (m_pointNeighborhood.size()>1)
         {
             Coord cmObject;
     
             for(unsigned int i=0; i<nbPoints; ++i)
             {
-                pointNeighborhood[i%pointNeighborhood.size()].insert(i);
+                m_pointNeighborhood[i%m_pointNeighborhood.size()].insert(i);
                 cmObject += X0[i];
             }
             cmObject /= nbPoints;
     
-            Xcm0.clear();
-            for(unsigned int i=0; i<pointNeighborhood.size(); ++i)
-                Xcm0.push_back(cmObject);
-            Xcm.resize(pointNeighborhood.size());
+            m_Xcm0.clear();
+            for(unsigned int i=0; i<m_pointNeighborhood.size(); ++i)
+                m_Xcm0.push_back(cmObject);
+            m_Xcm.resize(m_pointNeighborhood.size());
             
             unsigned int iter = 0;
             bool changed;
@@ -171,32 +171,32 @@ void ShapeMatchingRotationFinder<DataTypes>::computeNeighborhood()
             {
                 changed = false;
                 iter++;
-                for(unsigned int i=0; i<pointNeighborhood.size(); ++i)
+                for(unsigned int i=0; i<m_pointNeighborhood.size(); ++i)
                 {
                     Coord center;
                     Neighborhood::const_iterator it, itEnd;
-                    for (it = pointNeighborhood[i].begin(), itEnd = pointNeighborhood[i].end(); it != itEnd ; ++it)
+                    for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd ; ++it)
                     {
                         center += X0[*it];
                     }
-                    if (pointNeighborhood[i].size())
+                    if (m_pointNeighborhood[i].size())
                     {
-                        center /= pointNeighborhood[i].size();
-                        changed |= ((center - Xcm0[i]).norm2() > epsilon.getValue());
-                        Xcm0[i] = center;
-                        pointNeighborhood[i].clear();
+                        center /= m_pointNeighborhood[i].size();
+                        changed |= ((center - m_Xcm0[i]).norm2() > d_epsilon.getValue());
+                        m_Xcm0[i] = center;
+                        m_pointNeighborhood[i].clear();
                     }
                 }
                 double minDist, dist;
                 int nearestCm0;
                 for(unsigned int i=0; i<nbPoints; ++i)
                 {
-                    minDist = (Xcm0[0] - X0[i]).norm2();
+                    minDist = (m_Xcm0[0] - X0[i]).norm2();
                     nearestCm0 = 0;
     
-                    for (unsigned int j=1; j<Xcm0.size(); ++j)
+                    for (unsigned int j=1; j<m_Xcm0.size(); ++j)
                     {
-                        dist = (Xcm0[j] - X0[i]).norm2();
+                        dist = (m_Xcm0[j] - X0[i]).norm2();
     
                         if (min<double>(dist, minDist) == dist)
                         {
@@ -204,10 +204,10 @@ void ShapeMatchingRotationFinder<DataTypes>::computeNeighborhood()
                             nearestCm0 = j;
                         }
                     }
-                    pointNeighborhood[nearestCm0].insert(i);
+                    m_pointNeighborhood[nearestCm0].insert(i);
                     clusterInPoint[i] = nearestCm0;
                 }
-            }while(changed&&(iter<maxIter.getValue()));
+            }while(changed&&(iter<d_maxIter.getValue()));
             
             double minDist, dist;
             int nearestCm0;
@@ -215,20 +215,20 @@ void ShapeMatchingRotationFinder<DataTypes>::computeNeighborhood()
             {
                 if (clusterInPoint[i] != 0)
                 { 
-                    minDist = (Xcm0[0] - X0[i]).norm2();
+                    minDist = (m_Xcm0[0] - X0[i]).norm2();
                     nearestCm0 = 0;
                 }
                 else
                 {
-                    minDist = (Xcm0[1] - X0[i]).norm2();
+                    minDist = (m_Xcm0[1] - X0[i]).norm2();
                     nearestCm0 = 1;
                 }
     
-                for (unsigned int j=nearestCm0+1; j<Xcm0.size(); ++j)
+                for (unsigned int j=nearestCm0+1; j<m_Xcm0.size(); ++j)
                 {
                     if (clusterInPoint[i] != j)
                     { 
-                        dist = (Xcm0[j] - X0[i]).norm2();
+                        dist = (m_Xcm0[j] - X0[i]).norm2();
     
                         if (min<double>(dist, minDist) == dist)
                         {
@@ -238,17 +238,17 @@ void ShapeMatchingRotationFinder<DataTypes>::computeNeighborhood()
                     }
                 }
     
-                pointNeighborhood[nearestCm0].insert(i);
+                m_pointNeighborhood[nearestCm0].insert(i);
             }
             
             
             for(unsigned int i=0; i<nbPoints; ++i)
             {
-                for(unsigned int j=0; j<pointNeighborhood.size(); ++j)
+                for(unsigned int j=0; j<m_pointNeighborhood.size(); ++j)
                 {
-                    if ((Xcm0[j] - X0[i]).norm2() < radius.getValue())
+                    if ((m_Xcm0[j] - X0[i]).norm2() < d_radius.getValue())
                     {
-                        pointNeighborhood[j].insert(i);
+                        m_pointNeighborhood[j].insert(i);
                     }
                 }
             }
@@ -260,32 +260,32 @@ template <class DataTypes>
 void ShapeMatchingRotationFinder<DataTypes>::computeQT()
 {
 
-	Xcm.resize(pointNeighborhood.size());
-	Xcm0.resize(pointNeighborhood.size());
+	m_Xcm.resize(m_pointNeighborhood.size());
+	m_Xcm0.resize(m_pointNeighborhood.size());
 
-        const VecCoord& restPositions = mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+        const VecCoord& restPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
-	for (unsigned int i=0;i<pointNeighborhood.size();++i)
+	for (unsigned int i=0;i<m_pointNeighborhood.size();++i)
 	{
 		Coord cm;
 		Neighborhood::const_iterator it, itEnd;
-		for (it = pointNeighborhood[i].begin(), itEnd = pointNeighborhood[i].end(); it != itEnd ; ++it)
+		for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd ; ++it)
 			cm += restPositions[*it];
-		cm /= pointNeighborhood[i].size();
-		Xcm0[i] = cm;
+		cm /= m_pointNeighborhood[i].size();
+		m_Xcm0[i] = cm;
 	}
 }
 
 template <class DataTypes>
 const typename ShapeMatchingRotationFinder<DataTypes>::VecNeighborhood& ShapeMatchingRotationFinder<DataTypes>::getNeighborhood()
 {
-    return pointNeighborhood;
+    return m_pointNeighborhood;
 }
 
 template <class DataTypes>
 void ShapeMatchingRotationFinder<DataTypes>::flipAxis(typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3 & rotation)
 {
-	int axis = axisToFlip.getValue();
+	int axis = d_axisToFlip.getValue();
 	if (axis >= 0 && axis <= 2)
 	{
 		for(unsigned int i=0 ; i<3;i++)
@@ -296,32 +296,31 @@ void ShapeMatchingRotationFinder<DataTypes>::flipAxis(typename ShapeMatchingRota
 template <class DataTypes>
 const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& ShapeMatchingRotationFinder<DataTypes>::getRotations()
 {
-        const VecCoord& currentPositions = mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
-        const VecCoord& restPositions = mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+        const VecCoord& currentPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
+        const VecCoord& restPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
-//	unsigned int nbPoints =  mechanicalState->getSize();
+//	unsigned int nbPoints =  m_mechanicalState->getSize();
 
 	if (currentPositions.size() < 3)
 	{
-                serr << "RotationFinder : problem with mechanical state; return ID matrix..." << sendl;
-		rotations.clear();
-		return rotations;
+        serr << "RotationFinder : problem with mechanical state; return ID matrix..." << sendl;
+		m_rotations.clear();
+		return m_rotations;
 	}
 	//if mechanical state has changed, we must compute again x0_cm and qT
-	if(oldRestPositionSize != restPositions.size())
+	if(m_oldRestPositionSize != restPositions.size())
 	{
 		computeNeighborhood();
-//                createClusters();
 		computeQT();
-		oldRestPositionSize = restPositions.size();
+		m_oldRestPositionSize = restPositions.size();
 	}
 	
-        unsigned int nbShapes = pointNeighborhood.size();
+    unsigned int nbShapes = m_pointNeighborhood.size();
 
-	rotations.resize(nbShapes);
-	dRotations.clear();
-	dRotations_dx.clear();
-	vecA.resize(nbShapes);
+	m_rotations.resize(nbShapes);
+	m_dRotations.clear();
+	m_dRotations_dx.clear();
+	m_vecA.resize(nbShapes);
 
 	for (unsigned int i=0 ; i<nbShapes ; i++)
 	{
@@ -334,13 +333,13 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 
             Coord center;
 	    Neighborhood::const_iterator it, itEnd;
-	    for (it = pointNeighborhood[i].begin(), itEnd = pointNeighborhood[i].end(); it != itEnd ; ++it)
+	    for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd ; ++it)
 		center += currentPositions[*it];
 
-	    center /= pointNeighborhood[i].size();
-	    Xcm[i] = center;
+	    center /= m_pointNeighborhood[i].size();
+	    m_Xcm[i] = center;
 
-	    for (it = pointNeighborhood[i].begin(), itEnd = pointNeighborhood[i].end(); it != itEnd ; ++it)
+	    for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd ; ++it)
 	    {
 		Coord neighbor = currentPositions[*it];
 		
@@ -349,7 +348,7 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 		for (unsigned int k=0 ;k<3 ;k++)
 			p[k][0] = temp[k];
 
-		qT[0] = restPositions[*it] - Xcm0[i];
+		qT[0] = restPositions[*it] - m_Xcm0[i];
 
 		A_pq += 1*(p*qT);
 	    }
@@ -362,37 +361,37 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 	    if (determinant(R) < 0)
 		flipAxis(R);
 
-	    vecA[i] = A_pq;
-	    rotations[i] = R;
+	    m_vecA[i] = A_pq;
+	    m_rotations[i] = R;
 	}
 
-	return rotations;
+	return m_rotations;
 }
 
 template <class DataTypes>
 void ShapeMatchingRotationFinder<DataTypes>::getRotations(defaulttype::BaseMatrix * m,int offset) {
     if (component::linearsolver::RotationMatrix<Real> * diag = dynamic_cast<component::linearsolver::RotationMatrix<Real> *>(m)) {
-        const VecCoord& currentPositions = mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
-        const VecCoord& restPositions = mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+        const VecCoord& currentPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
+        const VecCoord& restPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
-//	unsigned int nbPoints =  mechanicalState->getSize();
+//	unsigned int nbPoints =  m_mechanicalState->getSize();
 
 	if (currentPositions.size() < 3)
 	{
                 serr << "RotationFinder : problem with mechanical state; return ID matrix..." << sendl;
-		rotations.clear();
+		m_rotations.clear();
 		return ;
 	}
 	//if mechanical state has changed, we must compute again x0_cm and qT
-	if(oldRestPositionSize != restPositions.size())
+	if(m_oldRestPositionSize != restPositions.size())
 	{
 		computeNeighborhood();
 //                createClusters();
 		computeQT();
-		oldRestPositionSize = restPositions.size();
+		m_oldRestPositionSize = restPositions.size();
 	}
 	
-        unsigned int nbShapes = pointNeighborhood.size();
+        unsigned int nbShapes = m_pointNeighborhood.size();
 
 	diag->getVector().resize(nbShapes*9);
 
@@ -407,13 +406,13 @@ void ShapeMatchingRotationFinder<DataTypes>::getRotations(defaulttype::BaseMatri
 
             Coord center;
 	    Neighborhood::const_iterator it, itEnd;
-	    for (it = pointNeighborhood[i].begin(), itEnd = pointNeighborhood[i].end(); it != itEnd ; ++it)
+	    for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd ; ++it)
 		center += currentPositions[*it];
 
-	    center /= pointNeighborhood[i].size();
-	    Xcm[i] = center;
+	    center /= m_pointNeighborhood[i].size();
+	    m_Xcm[i] = center;
 
-	    for (it = pointNeighborhood[i].begin(), itEnd = pointNeighborhood[i].end(); it != itEnd ; ++it)
+	    for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd ; ++it)
 	    {
 		Coord neighbor = currentPositions[*it];
 		
@@ -422,7 +421,7 @@ void ShapeMatchingRotationFinder<DataTypes>::getRotations(defaulttype::BaseMatri
 		for (unsigned int k=0 ;k<3 ;k++)
 			p[k][0] = temp[k];
 
-		qT[0] = restPositions[*it] - Xcm0[i];
+		qT[0] = restPositions[*it] - m_Xcm0[i];
 
 		A_pq += 1*(p*qT);
 	    }
@@ -438,21 +437,21 @@ void ShapeMatchingRotationFinder<DataTypes>::getRotations(defaulttype::BaseMatri
 	}
     } else {
 	getRotations();
-	m->resize(rotations.size()*3,rotations.size()*3);
+	m->resize(m_rotations.size()*3,m_rotations.size()*3);
 	
-	for (unsigned i=0;i<rotations.size();i++) {
+	for (unsigned i=0;i<m_rotations.size();i++) {
 	    int e = i*3+offset;
-	    m->set(e+0,e+0,rotations[i][0][0]);
-	    m->set(e+0,e+1,rotations[i][0][1]);
-	    m->set(e+0,e+2,rotations[i][0][2]);
+	    m->set(e+0,e+0,m_rotations[i][0][0]);
+	    m->set(e+0,e+1,m_rotations[i][0][1]);
+	    m->set(e+0,e+2,m_rotations[i][0][2]);
 	    
-	    m->set(e+1,e+0,rotations[i][1][0]);
-	    m->set(e+1,e+1,rotations[i][1][1]);
-	    m->set(e+1,e+2,rotations[i][1][2]);
+	    m->set(e+1,e+0,m_rotations[i][1][0]);
+	    m->set(e+1,e+1,m_rotations[i][1][1]);
+	    m->set(e+1,e+2,m_rotations[i][1][2]);
 	    
-	    m->set(e+2,e+0,rotations[i][2][0]);
-	    m->set(e+2,e+1,rotations[i][2][1]);
-	    m->set(e+2,e+2,rotations[i][2][2]);
+	    m->set(e+2,e+0,m_rotations[i][2][0]);
+	    m->set(e+2,e+1,m_rotations[i][2][1]);
+	    m->set(e+2,e+2,m_rotations[i][2][2]);
 	}
     }
 }
@@ -460,49 +459,50 @@ void ShapeMatchingRotationFinder<DataTypes>::getRotations(defaulttype::BaseMatri
 template <class DataTypes>
 const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::DMat3x3>& ShapeMatchingRotationFinder<DataTypes>::getDRotations()
 {
-	//const VecCoord& restPositions = *mechanicalState->getX0();
-	//const VecDeriv& dx = *mechanicalState->getV();
+	//const VecCoord& restPositions = *m_mechanicalState->getX0();
+	//const VecDeriv& dx = *m_mechanicalState->getV();
 
-	unsigned int nbShapes = pointNeighborhood.size();
+	unsigned int nbShapes = m_pointNeighborhood.size();
 
-	dRotations.resize(nbShapes);
-	const Real epsilon = (Real) 0.000001;
+	m_dRotations.resize(nbShapes);
+	const Real d_epsilon = (Real) 0.000001;
+	const auto invEpsilon = (((Real)1.0) / d_epsilon);
 	for (unsigned int i=0 ; i<nbShapes ; i++)
 	{
-	    DMat3x3 dR;
 	    for (int l=0;l<3;++l)
 	        for (int c=0;c<3;++c)
 	    {
-			Mat3x3 A = vecA[i];
-			A[l][c]+=epsilon;
+			Mat3x3 A = m_vecA[i];
+			A[l][c]+=d_epsilon;
 			Mat3x3 R, H;
 			//helper::Decompose<Real>::polarDecomposition(A, R);
 			polar::polar_decomposition(R.ptr(), H.ptr(), A.ptr());
 			//test R is rotation or symmetry
 			//-> negative if symmetry
 			if (determinant(R) < 0)
-			flipAxis(R);
-			 dR[l*3+c] = R;
-			 dR[l*3+c] -= rotations[i];
-			 dR[l*3+c] *= (((Real)1.0)/epsilon);
+				flipAxis(R);
+			m_dRotations[i][l * 3 + c] = R;
+			m_dRotations[i][l * 3 + c] -= m_rotations[i];
+			m_dRotations[i][l * 3 + c] *= invEpsilon;
 	    }
-	    dRotations[i] = dR;
 	}
 
-	return dRotations;
+	return m_dRotations;
 }
 
 template <class DataTypes>
 const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& ShapeMatchingRotationFinder<DataTypes>::getDRotations(const VecDeriv& dx)
 {
-	if (dRotations.empty()) 
+	if (m_dRotations.empty())
+	{
 		getDRotations();
+	}
 
-    const VecCoord& restPositions = mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+    const VecCoord& restPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
-	unsigned int nbShapes = pointNeighborhood.size();
+	const auto nbShapes = m_pointNeighborhood.size();
 
-	dRotations_dx.resize(nbShapes);
+	m_dRotations_dx.resize(nbShapes);
 
 	for (unsigned int i=0 ; i<nbShapes ; i++)
 	{
@@ -513,34 +513,40 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 	    type::Mat<3,1,Real> dp;
 	    type::Mat<1,3,Real> qT;
 
-            Coord dcenter;
+        Coord dcenter;
 	    Neighborhood::const_iterator it, itEnd;
-	    for (it = pointNeighborhood[i].begin(), itEnd = pointNeighborhood[i].end(); it != itEnd ; ++it)
-		dcenter += dx[*it];
+		for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd; ++it)
+		{
+			dcenter += dx[*it];
+		}
 
-	    dcenter /= pointNeighborhood[i].size();
+	    dcenter /= m_pointNeighborhood[i].size();
 
-	    for (it = pointNeighborhood[i].begin(), itEnd = pointNeighborhood[i].end(); it != itEnd ; ++it)
+	    for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd ; ++it)
 	    {
-		Coord dneighbor = dx[*it];
-		
-		temp = (dneighbor - dcenter);
+			const Coord& dneighbor = dx[*it];
+			temp = (dneighbor - dcenter);
 
-		for (unsigned int k=0 ;k<3 ;k++)
-			dp[k][0] = temp[k];
+			for (unsigned int k = 0; k < 3; k++)
+			{
+				dp[k][0] = temp[k];
+			}
 
-		qT[0] = restPositions[*it] - Xcm0[i];
-
-		dA_pq += 1*(dp*qT);
+			qT[0] = restPositions[*it] - m_Xcm0[i];
+			dA_pq += 1*(dp*qT);
 	    }
 	    Mat3x3 dR;
-	    for (int l=0;l<3;++l)
-	        for (int c=0;c<3;++c)
-		dR += dRotations[i][l*3+c] * dA_pq[l][c];
+		for (int l = 0; l < 3; ++l)
+		{
+			for (int c = 0; c < 3; ++c)
+			{
+				dR += m_dRotations[i][l * 3 + c] * dA_pq[l][c];
+			}
+		}
 
-	    dRotations_dx[i] = dR;
+	    m_dRotations_dx[i] = dR;
 	}
-	return dRotations_dx;
+	return m_dRotations_dx;
 }
 
 template <class DataTypes>
@@ -564,10 +570,10 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
 {
 	vparams->drawTool()->saveLastState();
 
-    if (showRotations.getValue())
+    if (d_showRotations.getValue())
     {
 
-        const VecCoord& currentPositions = mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
+        const VecCoord& currentPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
 	
         getRotations();
 
@@ -576,18 +582,18 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
 		std::vector<type::Vector3> vertices;
 		std::vector<type::RGBAColor> colors;
 
-		for (unsigned int i=0 ; i<rotations.size() ; i++)
+		for (unsigned int i=0 ; i<m_rotations.size() ; i++)
 		{
 			vertices.push_back(currentPositions[i]);
-			vertices.push_back(currentPositions[i] + rotations[i].col(0));
+			vertices.push_back(currentPositions[i] + m_rotations[i].col(0));
 			colors.push_back(type::RGBAColor::red());
 
 			vertices.push_back(currentPositions[i]);
-			vertices.push_back(currentPositions[i] + rotations[i].col(1));
+			vertices.push_back(currentPositions[i] + m_rotations[i].col(1));
 			colors.push_back(type::RGBAColor::green());
 
 			vertices.push_back(currentPositions[i]);
-			vertices.push_back(currentPositions[i] + rotations[i].col(2));
+			vertices.push_back(currentPositions[i] + m_rotations[i].col(2));
 			colors.push_back(type::RGBAColor::blue());
 		}
 
@@ -598,9 +604,9 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
         
     if (vparams->displayFlags().getShowForceFields())
     {
-        const VecCoord& currentPositions = mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
+        const VecCoord& currentPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
         
-        if (!showRotations.getValue())
+        if (!d_showRotations.getValue())
             getRotations();
         
 		vparams->drawTool()->disableLighting();
@@ -610,16 +616,16 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
         
         float r, g, b;
         
-        for (unsigned int i=0 ; i<Xcm0.size() ; ++i)
+        for (unsigned int i=0 ; i<m_Xcm0.size() ; ++i)
         {
             r = (float)((i*7543)%11)/11;
             g = (float)((i*1357)%13)/13;
             b = (float)((i*4829)%17)/17;
 
             Neighborhood::const_iterator it, itEnd;
-            for (it = pointNeighborhood[i].cbegin(), itEnd = pointNeighborhood[i].cend(); it != itEnd ; ++it)
+            for (it = m_pointNeighborhood[i].cbegin(), itEnd = m_pointNeighborhood[i].cend(); it != itEnd ; ++it)
             {
-				vertices.push_back(Xcm[i]);
+				vertices.push_back(m_Xcm[i]);
 				vertices.push_back(currentPositions[*it]);
 
 				colors.push_back({ r, g, b, 1.0f });

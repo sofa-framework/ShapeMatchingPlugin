@@ -92,14 +92,14 @@ void ShapeMatchingForceField<DataTypes>::addDForce(const core::MechanicalParams*
         const Mat3x3& dR = vDR[i];
         Coord Xcm0 = vcm0[i];
         Coord dxcm;
-        typename container::ShapeMatchingRotationFinder<DataTypes>::Neighborhood::const_iterator it, itEnd;
-        for (it = vNeighborhood[i].begin(), itEnd = vNeighborhood[i].end(); it != itEnd ; ++it)
+
+        for (auto it = vNeighborhood[i].cbegin(), itEnd = vNeighborhood[i].cend(); it != itEnd ; ++it)
         {
             unsigned int neighbor_i = *it;
             dxcm += dp1[neighbor_i];
         }
         dxcm /= vNeighborhood[i].size();
-        for (it = vNeighborhood[i].begin(), itEnd = vNeighborhood[i].end(); it != itEnd ; ++it)
+        for (auto it = vNeighborhood[i].cbegin(), itEnd = vNeighborhood[i].cend(); it != itEnd ; ++it)
         {
             unsigned int neighbor_i = *it;
             Coord dgi = dxcm + dR * (x0[neighbor_i] - Xcm0); // + R*(x0[neighbor_i] - Xcm0);

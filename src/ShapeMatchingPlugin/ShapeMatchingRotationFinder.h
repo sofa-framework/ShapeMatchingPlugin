@@ -82,17 +82,16 @@ public:
 	typedef type::vector<Neighborhood> VecNeighborhood;
 
 private:
-    core::behavior::MechanicalState<DataTypes>* mechanicalState;
-    core::topology::BaseMeshTopology* topo;
+    core::behavior::MechanicalState<DataTypes>* m_mechanicalState;
+    core::topology::BaseMeshTopology* m_topo;
 
 	//rest data
-	Coord x0_cm;
-	unsigned int oldRestPositionSize;
-	VecNeighborhood pointNeighborhood, lastPointNeighborhood;
-	VecCoord Xcm, Xcm0;
-	type::vector<Mat3x3> rotations, vecA;
-	type::vector<DMat3x3> dRotations;
-	type::vector<Mat3x3> dRotations_dx;
+	unsigned int m_oldRestPositionSize;
+	VecNeighborhood m_pointNeighborhood, m_lastPointNeighborhood;
+	VecCoord m_Xcm, m_Xcm0;
+	type::vector<Mat3x3> m_rotations, m_vecA;
+	type::vector<DMat3x3> m_dRotations;
+	type::vector<Mat3x3> m_dRotations_dx;
 
     template<class T>
     T min(const T a, const T b) const
@@ -105,13 +104,13 @@ private:
 public:
 	enum Axis { X, Y, Z };
 
-	Data<int> axisToFlip;
-	Data<bool> showRotations;
-	Data<int> neighborhoodLevel;
-	Data<int> numOfClusters;
-	Data<unsigned int> maxIter;
-	Data<Real> epsilon;
-	Data<Real> radius;
+	Data<int> d_axisToFlip;
+	Data<bool> d_showRotations;
+	Data<int> d_neighborhoodLevel;
+	Data<int> d_numOfClusters;
+	Data<unsigned int> d_maxIter;
+	Data<Real> d_epsilon;
+	Data<Real> d_radius;
 
 protected:
 	ShapeMatchingRotationFinder();
@@ -130,9 +129,9 @@ public:
 
 	void computeQT();
 
-	const VecCoord& getCM() { return Xcm; }
+	const VecCoord& getCM() { return m_Xcm; }
 
-	const VecCoord& getCM0() { return Xcm0; }
+	const VecCoord& getCM0() { return m_Xcm0; }
 
 	void computeNeighborhood();
 
