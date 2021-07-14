@@ -577,16 +577,13 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
 			vertices.push_back(currentPositions[i]);
 			vertices.push_back(currentPositions[i] + rotations[i].col(0));
 			colors.push_back(type::RGBAColor::red());
-			colors.push_back(type::RGBAColor::red());
 
 			vertices.push_back(currentPositions[i]);
 			vertices.push_back(currentPositions[i] + rotations[i].col(1));
 			colors.push_back(type::RGBAColor::green());
-			colors.push_back(type::RGBAColor::green());
 
 			vertices.push_back(currentPositions[i]);
 			vertices.push_back(currentPositions[i] + rotations[i].col(2));
-			colors.push_back(type::RGBAColor::blue());
 			colors.push_back(type::RGBAColor::blue());
 		}
 
@@ -621,7 +618,6 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
 				vertices.push_back(Xcm[i]);
 				vertices.push_back(currentPositions[*it]);
 
-				colors.push_back({ r, g, b, 1.0f });
 				colors.push_back({ r, g, b, 1.0f });
             }
         }
