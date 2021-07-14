@@ -39,6 +39,7 @@
 #include <sofa/core/visual/VisualParams.h>
 
 #include <sofa/helper/decompose.h>
+#include <ShapeMatchingPlugin/polar_decomposition_3x3.h>
 
 
 namespace sofa
@@ -352,8 +353,9 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 
 		A_pq += 1*(p*qT);
 	    }
-        Mat3x3 R;
-        helper::Decompose<Real>::polarDecomposition(A_pq, R);
+        Mat3x3 R, H;
+        //helper::Decompose<Real>::polarDecomposition(A_pq, R);
+		polar::polar_decomposition(R.ptr(), H.ptr(), A_pq.ptr());
 
 	    //test R is rotation or symmetry
 	    //-> negative if symmetry
@@ -467,21 +469,22 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::DMat3x3>& Sh
 	const Real epsilon = (Real) 0.000001;
 	for (unsigned int i=0 ; i<nbShapes ; i++)
 	{
-	     DMat3x3 dR;
+	    DMat3x3 dR;
 	    for (int l=0;l<3;++l)
 	        for (int c=0;c<3;++c)
 	    {
-		Mat3x3 A = vecA[i];
-		A[l][c]+=epsilon;
-        Mat3x3 R;
-        helper::Decompose<Real>::polarDecomposition(A, R);
-	    //test R is rotation or symmetry
-	    //-> negative if symmetry
-	    if (determinant(R) < 0)
-		flipAxis(R);
-	     dR[l*3+c] = R;
-	     dR[l*3+c] -= rotations[i];
-	     dR[l*3+c] *= (((Real)1.0)/epsilon);
+			Mat3x3 A = vecA[i];
+			A[l][c]+=epsilon;
+			Mat3x3 R, H;
+			//helper::Decompose<Real>::polarDecomposition(A, R);
+			polar::polar_decomposition(R.ptr(), H.ptr(), A.ptr());
+			//test R is rotation or symmetry
+			//-> negative if symmetry
+			if (determinant(R) < 0)
+			flipAxis(R);
+			 dR[l*3+c] = R;
+			 dR[l*3+c] -= rotations[i];
+			 dR[l*3+c] *= (((Real)1.0)/epsilon);
 	    }
 	    dRotations[i] = dR;
 	}
@@ -492,8 +495,10 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::DMat3x3>& Sh
 template <class DataTypes>
 const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& ShapeMatchingRotationFinder<DataTypes>::getDRotations(const VecDeriv& dx)
 {
-	if (dRotations.empty()) getDRotations();
-        const VecCoord& restPositions = mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+	if (dRotations.empty()) 
+		getDRotations();
+
+    const VecCoord& restPositions = mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
 	unsigned int nbShapes = pointNeighborhood.size();
 
@@ -501,7 +506,6 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 
 	for (unsigned int i=0 ; i<nbShapes ; i++)
 	{
-
 	    //we compute dA_pq matrix
 	    Mat3x3 dA_pq(0);
 
