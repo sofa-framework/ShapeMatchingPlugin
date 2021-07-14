@@ -32,14 +32,13 @@
 #ifndef SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_INL
 #define SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_INL
 
-#include <sofa/component/container/ShapeMatchingRotationFinder.h>
+#include <ShapeMatchingPlugin/ShapeMatchingRotationFinder.h>
 
 #include <sofa/core/behavior/RotationMatrix.h>
 #include <sofa/core/objectmodel/KeypressedEvent.h>
 #include <sofa/core/visual/VisualParams.h>
 
 #include <sofa/helper/decompose.h>
-#include <sofa/helper/gl/template.h>
 
 
 namespace sofa
@@ -108,7 +107,7 @@ void ShapeMatchingRotationFinder<DataTypes>::ComputeNeighborhoodFromNeighborhood
 		Neighborhood::const_iterator it, itEnd;
 		for (it = lastPointNeighborhood[i].begin(), itEnd = lastPointNeighborhood[i].end(); it != itEnd ; ++it)
 		{
-			const helper::vector<Point>& vertexVertexShell = topo->getVerticesAroundVertex(*it);
+			const type::vector<Point>& vertexVertexShell = topo->getVerticesAroundVertex(*it);
 			for (unsigned int j=0 ; j<vertexVertexShell.size(); ++j)
 			{
 				neighborhood.insert(vertexVertexShell[j]);
@@ -144,7 +143,7 @@ void ShapeMatchingRotationFinder<DataTypes>::computeNeighborhood()
     else
     {
         const VecCoord& X0 = mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
-        helper::vector< unsigned int > clusterInPoint;
+        type::vector< unsigned int > clusterInPoint;
     
         clusterInPoint.resize(nbPoints);
         pointNeighborhood.resize(min<int>(numOfClusters.getValue(), nbPoints));
@@ -294,7 +293,7 @@ void ShapeMatchingRotationFinder<DataTypes>::flipAxis(typename ShapeMatchingRota
 }
 
 template <class DataTypes>
-const helper::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& ShapeMatchingRotationFinder<DataTypes>::getRotations()
+const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& ShapeMatchingRotationFinder<DataTypes>::getRotations()
 {
         const VecCoord& currentPositions = mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
         const VecCoord& restPositions = mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
@@ -329,8 +328,8 @@ const helper::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& S
 	    Mat3x3 A_pq(0);
 
 	    Coord temp;
-	    defaulttype::Mat<3,1,Real> p;
-	    defaulttype::Mat<1,3,Real> qT;
+	    type::Mat<3,1,Real> p;
+	    type::Mat<1,3,Real> qT;
 
             Coord center;
 	    Neighborhood::const_iterator it, itEnd;
@@ -401,8 +400,8 @@ void ShapeMatchingRotationFinder<DataTypes>::getRotations(defaulttype::BaseMatri
 	    Mat3x3 A_pq(0);
 
 	    Coord temp;
-	    defaulttype::Mat<3,1,Real> p;
-	    defaulttype::Mat<1,3,Real> qT;
+	    type::Mat<3,1,Real> p;
+	    type::Mat<1,3,Real> qT;
 
             Coord center;
 	    Neighborhood::const_iterator it, itEnd;
@@ -457,7 +456,7 @@ void ShapeMatchingRotationFinder<DataTypes>::getRotations(defaulttype::BaseMatri
 }
 
 template <class DataTypes>
-const helper::vector<typename ShapeMatchingRotationFinder<DataTypes>::DMat3x3>& ShapeMatchingRotationFinder<DataTypes>::getDRotations()
+const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::DMat3x3>& ShapeMatchingRotationFinder<DataTypes>::getDRotations()
 {
 	//const VecCoord& restPositions = *mechanicalState->getX0();
 	//const VecDeriv& dx = *mechanicalState->getV();
@@ -491,7 +490,7 @@ const helper::vector<typename ShapeMatchingRotationFinder<DataTypes>::DMat3x3>& 
 }
 
 template <class DataTypes>
-const helper::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& ShapeMatchingRotationFinder<DataTypes>::getDRotations(const VecDeriv& dx)
+const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& ShapeMatchingRotationFinder<DataTypes>::getDRotations(const VecDeriv& dx)
 {
 	if (dRotations.empty()) getDRotations();
         const VecCoord& restPositions = mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
@@ -507,8 +506,8 @@ const helper::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& S
 	    Mat3x3 dA_pq(0);
 
 	    Coord temp;
-	    defaulttype::Mat<3,1,Real> dp;
-	    defaulttype::Mat<1,3,Real> qT;
+	    type::Mat<3,1,Real> dp;
+	    type::Mat<1,3,Real> qT;
 
             Coord dcenter;
 	    Neighborhood::const_iterator it, itEnd;
@@ -559,32 +558,41 @@ void ShapeMatchingRotationFinder<DataTypes>::handleEvent(sofa::core::objectmodel
 template <class DataTypes>
 void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualParams* vparams)
 {
+	vparams->drawTool()->saveLastState();
+
     if (showRotations.getValue())
     {
+
         const VecCoord& currentPositions = mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
 	
         getRotations();
 
-	glDisable(GL_LIGHTING);
+		vparams->drawTool()->disableLighting();
 
-	glBegin(GL_LINES);
-	for (unsigned int i=0 ; i<rotations.size() ; i++)
-	{
-		glColor3f(1.0f,0.0f,0.0f);
-		helper::gl::glVertexT(currentPositions[i]);
-		helper::gl::glVertexT(currentPositions[i] + rotations[i].col(0));
+		std::vector<type::Vector3> vertices;
+		std::vector<type::RGBAColor> colors;
 
-		glColor3f(0.0f,1.0f,0.0f);
-		helper::gl::glVertexT(currentPositions[i]);
-		helper::gl::glVertexT(currentPositions[i] + rotations[i].col(1));
+		for (unsigned int i=0 ; i<rotations.size() ; i++)
+		{
+			vertices.push_back(currentPositions[i]);
+			vertices.push_back(currentPositions[i] + rotations[i].col(0));
+			colors.push_back(type::RGBAColor::red());
+			colors.push_back(type::RGBAColor::red());
 
-		glColor3f(0.0f,0.0f,1.0f);
-		helper::gl::glVertexT(currentPositions[i]);
-		helper::gl::glVertexT(currentPositions[i] + rotations[i].col(2));
-	}
-	glEnd();
-        
-        glEnable(GL_LIGHTING);
+			vertices.push_back(currentPositions[i]);
+			vertices.push_back(currentPositions[i] + rotations[i].col(1));
+			colors.push_back(type::RGBAColor::green());
+			colors.push_back(type::RGBAColor::green());
+
+			vertices.push_back(currentPositions[i]);
+			vertices.push_back(currentPositions[i] + rotations[i].col(2));
+			colors.push_back(type::RGBAColor::blue());
+			colors.push_back(type::RGBAColor::blue());
+		}
+
+		vparams->drawTool()->drawLines(vertices, 1.0f, colors);
+
+		vparams->drawTool()->enableLighting();
     }
         
     if (vparams->displayFlags().getShowForceFields())
@@ -594,9 +602,10 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
         if (!showRotations.getValue())
             getRotations();
         
-        glDisable(GL_LIGHTING);
-        
-        glBegin(GL_LINES);
+		vparams->drawTool()->disableLighting();
+
+		std::vector<type::Vector3> vertices;
+		std::vector<type::RGBAColor> colors;
         
         float r, g, b;
         
@@ -606,19 +615,23 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
             g = (float)((i*1357)%13)/13;
             b = (float)((i*4829)%17)/17;
 
-            glColor3f(r,g,b);
-
             Neighborhood::const_iterator it, itEnd;
-            for (it = pointNeighborhood[i].begin(), itEnd = pointNeighborhood[i].end(); it != itEnd ; ++it)
+            for (it = pointNeighborhood[i].cbegin(), itEnd = pointNeighborhood[i].cend(); it != itEnd ; ++it)
             {
-                helper::gl::glVertexT(Xcm[i]);
-                helper::gl::glVertexT(currentPositions[*it]);
+				vertices.push_back(Xcm[i]);
+				vertices.push_back(currentPositions[*it]);
+
+				colors.push_back({ r, g, b, 1.0f });
+				colors.push_back({ r, g, b, 1.0f });
             }
         }
-        glEnd();
 
-        glEnable(GL_LIGHTING);
+		vparams->drawTool()->drawLines(vertices, 1.0f, colors);
+
+		vparams->drawTool()->enableLighting();
     }
+
+	vparams->drawTool()->restoreLastState();
 }
 
 } // namespace container

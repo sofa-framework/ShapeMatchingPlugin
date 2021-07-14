@@ -29,9 +29,10 @@
  *      Author: froy
  */
 #define SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_CPP
-#include <sofa/defaulttype/Mat.h>
-#include <sofa/component/initMiscForcefieldDev.h>
-#include <sofa/component/container/ShapeMatchingRotationFinder.inl>
+#include <ShapeMatchingPlugin/config.h>
+
+#include <sofa/type/Mat.h>
+#include <ShapeMatchingPlugin/ShapeMatchingRotationFinder.inl>
 #include <sofa/core/ObjectFactory.h>
 
 namespace sofa
@@ -60,12 +61,12 @@ int ShapeMatchingRotationFinderClass = core::RegisterObject("ShapeMatchingRotati
 .addAlias("RotationFinder")
 ;
 #ifndef SOFA_FLOAT
-template class SOFA_MISC_FORCEFIELD_DEV_API ShapeMatchingRotationFinder< defaulttype::Vec3dTypes >;
-//template class SOFA_MISC_FORCEFIELD_DEV_API ShapeMatchingRotationFinder< defaulttype::Vec2dTypes >;
+template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec3dTypes >;
+//template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec2dTypes >;
 #endif
 #ifndef SOFA_DOUBLE
-template class SOFA_MISC_FORCEFIELD_DEV_API ShapeMatchingRotationFinder< defaulttype::Vec3fTypes >;
-//template class SOFA_MISC_FORCEFIELD_DEV_API ShapeMatchingRotationFinder< defaulttype::Vec2fTypes >;
+template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec3fTypes >;
+//template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec2fTypes >;
 #endif
 
 } // namespace container

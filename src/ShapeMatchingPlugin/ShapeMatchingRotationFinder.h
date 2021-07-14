@@ -32,12 +32,12 @@
 #ifndef SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_H
 #define SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_H
 
-#include <sofa/component/initMiscForcefieldDev.h>
+#include <ShapeMatchingPlugin/config.h>
 #include <sofa/core/behavior/RotationFinder.h>
 #include <sofa/core/behavior/MechanicalState.h>
 #include <sofa/core/topology/BaseMeshTopology.h>
 
-#include <sofa/defaulttype/Vec3Types.h>
+#include <sofa/defaulttype/VecTypes.h>
 
 /*
  *	This class find Rotation Matrix from two position states (rest and current state)
@@ -73,13 +73,13 @@ public:
 	typedef typename DataTypes::Coord Coord;
 	typedef typename DataTypes::Deriv Deriv;
 	typedef typename Coord::value_type Real;
-	typedef defaulttype::Mat<3,3,Real> Mat3x3;
-	typedef helper::fixed_array<Mat3x3,9> DMat3x3;
+	typedef type::Mat<3,3,Real> Mat3x3;
+	typedef type::fixed_array<Mat3x3,9> DMat3x3;
 
 	typedef core::topology::BaseMeshTopology::PointID Point;
 
 	typedef std::set<Point> Neighborhood;
-	typedef helper::vector<Neighborhood> VecNeighborhood;
+	typedef type::vector<Neighborhood> VecNeighborhood;
 
 private:
     core::behavior::MechanicalState<DataTypes>* mechanicalState;
@@ -90,9 +90,9 @@ private:
 	unsigned int oldRestPositionSize;
 	VecNeighborhood pointNeighborhood, lastPointNeighborhood;
 	VecCoord Xcm, Xcm0;
-	helper::vector<Mat3x3> rotations, vecA;
-	helper::vector<DMat3x3> dRotations;
-	helper::vector<Mat3x3> dRotations_dx;
+	type::vector<Mat3x3> rotations, vecA;
+	type::vector<DMat3x3> dRotations;
+	type::vector<Mat3x3> dRotations_dx;
 
     template<class T>
     T min(const T a, const T b) const
@@ -120,13 +120,13 @@ protected:
 public:
 	void init();
 
-	const helper::vector<Mat3x3>& getRotations();
+	const type::vector<Mat3x3>& getRotations();
 	
 	void getRotations(defaulttype::BaseMatrix * m,int offset = 0) ;
 
-	const helper::vector<DMat3x3>& getDRotations();
+	const type::vector<DMat3x3>& getDRotations();
 
-	const helper::vector<Mat3x3>& getDRotations(const VecDeriv& dx);
+	const type::vector<Mat3x3>& getDRotations(const VecDeriv& dx);
 
 	void computeQT();
 
@@ -169,10 +169,10 @@ public:
 
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_CPP)
 #ifndef SOFA_FLOAT
-extern template class SOFA_MISC_FORCEFIELD_DEV_API ShapeMatchingRotationFinder< defaulttype::Vec3dTypes >;
+extern template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec3dTypes >;
 #endif
 #ifndef SOFA_DOUBLE
-extern template class SOFA_MISC_FORCEFIELD_DEV_API ShapeMatchingRotationFinder< defaulttype::Vec3fTypes >;
+extern template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec3fTypes >;
 #endif
 #endif
 

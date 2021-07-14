@@ -26,11 +26,9 @@
 #define SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_INL
 
 #include <sofa/core/behavior/ForceField.inl>
-#include <sofa/component/forcefield/ShapeMatchingForceField.h>
+#include <ShapeMatchingPlugin/ShapeMatchingForceField.h>
 #include <sofa/core/visual/VisualParams.h>
-#include <sofa/helper/system/config.h>
 #include <sofa/helper/rmath.h>
-#include <sofa/helper/system/gl.h>
 #include <assert.h>
 #include <iostream>
 #include <sofa/simulation/Node.h>
@@ -50,8 +48,8 @@ void ShapeMatchingForceField<DataTypes>::addForce(const core::MechanicalParams* 
     sofa::helper::WriteAccessor< core::objectmodel::Data< VecDeriv > > f1 = f;
     sofa::helper::ReadAccessor< core::objectmodel::Data< VecCoord > > p1 = x;
 
-    defaulttype::Mat<3,1,Real> q;
-    const helper::vector<Mat3x3>& vR = rotationFinder->getRotations();
+    type::Mat<3,1,Real> q;
+    const type::vector<Mat3x3>& vR = rotationFinder->getRotations();
     const VecCoord& vcm = rotationFinder->getCM();
     const VecCoord& vcm0 = rotationFinder->getCM0();
     const typename container::ShapeMatchingRotationFinder<DataTypes>::VecNeighborhood& vNeighborhood = rotationFinder->getNeighborhood();
@@ -82,7 +80,7 @@ void ShapeMatchingForceField<DataTypes>::addDForce(const core::MechanicalParams*
     sofa::helper::WriteAccessor< core::objectmodel::Data< VecDeriv > > df1 = df;
     sofa::helper::ReadAccessor< core::objectmodel::Data< VecDeriv > > dp1 = dx;
 
-    const helper::vector<Mat3x3>& vDR = rotationFinder->getDRotations(dx.getValue());
+    const type::vector<Mat3x3>& vDR = rotationFinder->getDRotations(dx.getValue());
     const VecCoord& vcm0 = rotationFinder->getCM0();
     const typename container::ShapeMatchingRotationFinder<DataTypes>::VecNeighborhood& vNeighborhood = rotationFinder->getNeighborhood();
     const VecCoord& x0 = this->mstate->read(sofa::core::ConstVecCoordId::restPosition())->getValue();

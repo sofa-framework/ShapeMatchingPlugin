@@ -29,7 +29,7 @@
 #include <sofa/core/behavior/MechanicalState.h>
 #include <sofa/core/objectmodel/Data.h>
 #include <sofa/core/objectmodel/Event.h>
-#include <sofa/component/container/ShapeMatchingRotationFinder.h>
+#include <ShapeMatchingPlugin/ShapeMatchingRotationFinder.h>
 
 namespace sofa
 {
@@ -61,7 +61,7 @@ public:
 	typedef typename DataTypes::Coord Coord;
 	typedef typename DataTypes::Deriv Deriv;
 	typedef typename Coord::value_type Real;
-	typedef defaulttype::Mat<3,3,Real> Mat3x3;
+	typedef type::Mat<3,3,Real> Mat3x3;
 
     typedef core::objectmodel::Data<VecCoord> DataVecCoord;
     typedef core::objectmodel::Data<VecDeriv> DataVecDeriv;
@@ -90,7 +90,7 @@ protected:
 
     };
 
-    Data<sofa::helper::vector<Contact> > contacts;
+    Data<sofa::type::vector<Contact> > contacts;
 
     core::behavior::MechanicalState<DataTypes> * centerDOF;
 
@@ -103,7 +103,7 @@ protected:
       , sphereRadius(initData(&sphereRadius, (Real)1, "radius", "sphere radius"))
       , stiffness(initData(&stiffness, (Real)500, "stiffness", "force stiffness"))
       , damping(initData(&damping, (Real)5, "damping", "force damping"))
-      , color(initData(&color, defaulttype::Vec3f(0.0f,0.0f,1.0f), "color", "sphere color"))
+      , color(initData(&color, type::RGBAColor::blue(), "color", "sphere color"))
       , bDraw(initData(&bDraw, true, "draw", "enable/disable drawing of the sphere"))
       , centerState(initData(&centerState, "centerState", "path to the MechanicalState controlling the center point"))
       , filter(initData(&filter, (Real)0, "filter", "filter"))
@@ -116,7 +116,7 @@ public:
     Data<Real> sphereRadius;
     Data<Real> stiffness;
     Data<Real> damping;
-    Data<defaulttype::Vec3f> color;
+    Data<type::RGBAColor> color;
     Data<bool> bDraw;
     Data<std::string> centerState;
     Data < Real > filter;
@@ -190,10 +190,10 @@ using sofa::defaulttype::Vec3fTypes;
 #if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_CPP)
 
 #ifndef SOFA_FLOAT
-extern template class SOFA_MISC_FORCEFIELD_DEV_API ShapeMatchingForceField<Vec3dTypes>;
+extern template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingForceField<Vec3dTypes>;
 #endif
 #ifndef SOFA_DOUBLE
-extern template class SOFA_MISC_FORCEFIELD_DEV_API ShapeMatchingForceField<Vec3fTypes>;
+extern template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingForceField<Vec3fTypes>;
 #endif
 
 #endif // defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_CPP)

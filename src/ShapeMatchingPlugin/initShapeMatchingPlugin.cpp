@@ -37,12 +37,16 @@ namespace sofa::component
 		SOFA_SHAPEMATCHINGPLUGIN_API const char* getModuleComponentList();
 	}
 
+	void initShapeMatchingPlugin()
+	{
+		initExternalModule();
+	}
+
 	void initExternalModule()
 	{
 		static bool first = true;
 		if (first)
 		{
-			initShapeMatchingPlugin();
 			first = false;
 		}
 	}

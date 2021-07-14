@@ -24,8 +24,8 @@
 ******************************************************************************/
 #define SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_CPP
 
-#include <sofa/component/forcefield/ShapeMatchingForceField.inl>
-#include <sofa/defaulttype/Vec3Types.h>
+#include <ShapeMatchingPlugin/ShapeMatchingForceField.inl>
+#include <sofa/defaulttype/VecTypes.h>
 #include <sofa/core/ObjectFactory.h>
 
 namespace sofa
@@ -51,10 +51,10 @@ int ShapeMatchingForceFieldClass = core::RegisterObject("Meshless deformations b
 #endif
 ;
 #ifndef SOFA_FLOAT
-template class SOFA_MISC_FORCEFIELD_DEV_API ShapeMatchingForceField<Vec3dTypes>;
+template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingForceField<Vec3dTypes>;
 #endif
 #ifndef SOFA_DOUBLE
-template class SOFA_MISC_FORCEFIELD_DEV_API ShapeMatchingForceField<Vec3fTypes>;
+template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingForceField<Vec3fTypes>;
 #endif
 
 } // namespace forcefield
