@@ -504,27 +504,29 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 
 	m_dRotations_dx.resize(nbShapes);
 
+	Mat3x3 dA_pq(0);
+
+	Coord temp;
+	type::Mat<3, 1, Real> dp;
+	type::Mat<1, 3, Real> qT;
+	Coord dcenter;
+
 	for (unsigned int i=0 ; i<nbShapes ; i++)
 	{
 	    //we compute dA_pq matrix
-	    Mat3x3 dA_pq(0);
+		dA_pq.clear();
+		dcenter.clear();
 
-	    Coord temp;
-	    type::Mat<3,1,Real> dp;
-	    type::Mat<1,3,Real> qT;
-
-        Coord dcenter;
-	    Neighborhood::const_iterator it, itEnd;
-		for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd; ++it)
+		for (const auto& pn : m_pointNeighborhood[i])
 		{
-			dcenter += dx[*it];
+			dcenter += dx[pn];
 		}
 
 	    dcenter /= m_pointNeighborhood[i].size();
 
-	    for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd ; ++it)
+		for (const auto& pn : m_pointNeighborhood[i])
 	    {
-			const Coord& dneighbor = dx[*it];
+			const Coord& dneighbor = dx[pn];
 			temp = (dneighbor - dcenter);
 
 			for (unsigned int k = 0; k < 3; k++)
@@ -532,19 +534,18 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 				dp[k][0] = temp[k];
 			}
 
-			qT[0] = restPositions[*it] - m_Xcm0[i];
-			dA_pq += 1*(dp*qT);
+			qT[0] = restPositions[pn] - m_Xcm0[i];
+			dA_pq += (dp*qT);
 	    }
-	    Mat3x3 dR;
+	    
+		m_dRotations_dx[i].clear();
 		for (int l = 0; l < 3; ++l)
 		{
 			for (int c = 0; c < 3; ++c)
 			{
-				dR += m_dRotations[i][l * 3 + c] * dA_pq[l][c];
+				m_dRotations_dx[i] += m_dRotations[i][l * 3 + c] * dA_pq[l][c];
 			}
 		}
-
-	    m_dRotations_dx[i] = dR;
 	}
 	return m_dRotations_dx;
 }

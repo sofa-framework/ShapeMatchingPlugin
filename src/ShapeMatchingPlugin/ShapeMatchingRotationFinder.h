@@ -38,6 +38,7 @@
 #include <sofa/core/topology/BaseMeshTopology.h>
 
 #include <sofa/defaulttype/VecTypes.h>
+#include <unordered_set>
 
 /*
  *	This class find Rotation Matrix from two position states (rest and current state)
@@ -78,7 +79,7 @@ public:
 
 	typedef core::topology::BaseMeshTopology::PointID Point;
 
-	typedef std::set<Point> Neighborhood;
+	typedef std::unordered_set<Point> Neighborhood;
 	typedef type::vector<Neighborhood> VecNeighborhood;
 
 private:

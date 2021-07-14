@@ -90,21 +90,19 @@ void ShapeMatchingForceField<DataTypes>::addDForce(const core::MechanicalParams*
     for (unsigned int i=0; i<vNeighborhood.size(); ++i)
     {
         const Mat3x3& dR = vDR[i];
-        Coord Xcm0 = vcm0[i];
+        const Coord& Xcm0 = vcm0[i];
         Coord dxcm;
 
-        for (auto it = vNeighborhood[i].cbegin(), itEnd = vNeighborhood[i].cend(); it != itEnd ; ++it)
+        for(const auto& ni : vNeighborhood[i])
         {
-            unsigned int neighbor_i = *it;
-            dxcm += dp1[neighbor_i];
+            dxcm += dp1[ni];
         }
         dxcm /= vNeighborhood[i].size();
-        for (auto it = vNeighborhood[i].cbegin(), itEnd = vNeighborhood[i].cend(); it != itEnd ; ++it)
+        for (const auto& ni : vNeighborhood[i])
         {
-            unsigned int neighbor_i = *it;
-            Coord dgi = dxcm + dR * (x0[neighbor_i] - Xcm0); // + R*(x0[neighbor_i] - Xcm0);
-            Coord dxi = dp1[neighbor_i];
-            df1[neighbor_i] += (dgi - dxi)*fact;
+            Coord dgi = dxcm + dR * (x0[ni] - Xcm0); // + R*(x0[ni] - Xcm0);
+            Coord dxi = dp1[ni];
+            df1[ni] += (dgi - dxi)*fact;
         }
     }
 }
