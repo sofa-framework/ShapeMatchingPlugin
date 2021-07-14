@@ -37,21 +37,50 @@ namespace sofa::component::forcefield
 
 template<class DataTypes>
 ShapeMatchingForceField<DataTypes>::ShapeMatchingForceField()
-:  d_stiffness(initData(&d_stiffness, (Real)500, "stiffness", "force stiffness"))
+: l_rotationFinder(initLink("rotationFinder", "link to the rotation finder"))
+, d_stiffness(initData(&d_stiffness, (Real)500, "stiffness", "force stiffness"))
 {
+}
+
+template<class DataTypes>
+void ShapeMatchingForceField<DataTypes>::init()
+{
+    this->d_componentState.setValue(sofa::core::objectmodel::ComponentState::Invalid);
+
+    Inherit::init();
+
+    if (!l_rotationFinder.get())
+    {
+        sofa::core::sptr< container::ShapeMatchingRotationFinder<DataTypes>> rotationFinder;
+        this->getContext()->get(rotationFinder);
+        if (!rotationFinder)
+        {
+            msg_error() << "did not found any Rotation Finder.";
+            return;
+        }
+        else
+        {
+            l_rotationFinder.set(rotationFinder);
+        }
+    }
+
+    this->d_componentState.setValue(sofa::core::objectmodel::ComponentState::Valid);
 }
 
 template<class DataTypes>
 void ShapeMatchingForceField<DataTypes>::addForce(const core::MechanicalParams* /* mparams */ /* PARAMS FIRST */, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& /* v */)
 {
+    if (d_componentState.getValue() != sofa::core::objectmodel::ComponentState::Valid)
+        return;
+
     sofa::helper::WriteAccessor< core::objectmodel::Data< VecDeriv > > f1 = f;
     sofa::helper::ReadAccessor< core::objectmodel::Data< VecCoord > > p1 = x;
 
     type::Mat<3,1,Real> q;
-    const type::vector<Mat3x3>& vR = m_rotationFinder->getRotations();
-    const VecCoord& vcm = m_rotationFinder->getCM();
-    const VecCoord& vcm0 = m_rotationFinder->getCM0();
-    const typename container::ShapeMatchingRotationFinder<DataTypes>::VecNeighborhood& vNeighborhood = m_rotationFinder->getNeighborhood();
+    const type::vector<Mat3x3>& vR = l_rotationFinder->getRotations();
+    const VecCoord& vcm = l_rotationFinder->getCM();
+    const VecCoord& vcm0 = l_rotationFinder->getCM0();
+    const typename container::ShapeMatchingRotationFinder<DataTypes>::VecNeighborhood& vNeighborhood = l_rotationFinder->getNeighborhood();
     const VecCoord& x0 = this->mstate->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
     Coord gi, xi;
 
@@ -76,12 +105,15 @@ void ShapeMatchingForceField<DataTypes>::addForce(const core::MechanicalParams* 
 template<class DataTypes>
 void ShapeMatchingForceField<DataTypes>::addDForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& df, const DataVecDeriv& dx)
 {
+    if (d_componentState.getValue() != sofa::core::objectmodel::ComponentState::Valid)
+        return;
+
     sofa::helper::WriteAccessor< core::objectmodel::Data< VecDeriv > > df1 = df;
     sofa::helper::ReadAccessor< core::objectmodel::Data< VecDeriv > > dp1 = dx;
 
-    const type::vector<Mat3x3>& vDR = m_rotationFinder->getDRotations(dx.getValue());
-    const VecCoord& vcm0 = m_rotationFinder->getCM0();
-    const typename container::ShapeMatchingRotationFinder<DataTypes>::VecNeighborhood& vNeighborhood = m_rotationFinder->getNeighborhood();
+    const type::vector<Mat3x3>& vDR = l_rotationFinder->getDRotations(dx.getValue());
+    const VecCoord& vcm0 = l_rotationFinder->getCM0();
+    const typename container::ShapeMatchingRotationFinder<DataTypes>::VecNeighborhood& vNeighborhood = l_rotationFinder->getNeighborhood();
     const VecCoord& x0 = this->mstate->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
     df1.resize(dp1.size());

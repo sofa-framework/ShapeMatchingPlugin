@@ -57,53 +57,16 @@ protected:
     ShapeMatchingForceField();
 
 public:
+    SingleLink<ShapeMatchingForceField<DataTypes>, container::ShapeMatchingRotationFinder<DataTypes>, BaseLink::FLAG_STOREPATH | BaseLink::FLAG_STRONGLINK> l_rotationFinder;
     Data<Real> d_stiffness;
-    container::ShapeMatchingRotationFinder<DataTypes>* m_rotationFinder;
 
-    virtual void addForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& v) override;
-    virtual void addDForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& df, const DataVecDeriv& dx) override;
-    virtual SReal getPotentialEnergy(const core::MechanicalParams* /*mparams*/, const DataVecCoord&  /*x */) const override;
+    void init() override;
+
+    void addForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& v) override;
+    void addDForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& df, const DataVecDeriv& dx) override;
+    SReal getPotentialEnergy(const core::MechanicalParams* /*mparams*/, const DataVecCoord&  /*x */) const override;
 
     void draw(const core::visual::VisualParams* vparams) override;
-
-    /// Pre-construction check method called by ObjectFactory.
-    template<class T>
-    static bool canCreate(T*& obj, core::objectmodel::BaseContext* context, core::objectmodel::BaseObjectDescription* arg)
-    {
-		using namespace container;
-
-        if (dynamic_cast< ShapeMatchingRotationFinder<DataTypes>* >(context->get< ShapeMatchingRotationFinder<DataTypes> >()) == NULL)
-            return false;
-
-        return core::objectmodel::BaseObject::canCreate(obj, context, arg);
-    }
-
-    /// Construction method called by ObjectFactory.
-    template<class T>
-	static typename T::SPtr create(T* tObj, core::objectmodel::BaseContext* context, core::objectmodel::BaseObjectDescription* arg )
-    {
-		using namespace container;
-
-        typename T::SPtr obj = core::objectmodel::BaseObject::create(tObj, context, arg);
-
-        if (context)
-        {
-            obj->m_rotationFinder = dynamic_cast< ShapeMatchingRotationFinder<DataTypes>* >(context->get< ShapeMatchingRotationFinder<DataTypes> >());
-        }
-
-
-		return obj;
-    }
-
-    virtual std::string getTemplateName() const
-      {
-        return templateName(this);
-      }
-
-    static std::string templateName(const ShapeMatchingForceField<DataTypes>* = NULL)
-    {
-      return DataTypes::Name();
-    }
 
 };
 
