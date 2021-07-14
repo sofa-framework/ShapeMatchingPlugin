@@ -76,9 +76,9 @@ public:
 	typedef type::vector<Neighborhood> VecNeighborhood;
 
 private:
-    core::behavior::MechanicalState<DataTypes>* m_mechanicalState;
-    core::topology::BaseMeshTopology* m_topo;
-
+	SingleLink<ShapeMatchingRotationFinder<DataTypes>, core::behavior::MechanicalState<DataTypes>, BaseLink::FLAG_STOREPATH | BaseLink::FLAG_STRONGLINK> l_mechanicalState;
+	SingleLink<ShapeMatchingRotationFinder<DataTypes>, sofa::core::topology::BaseMeshTopology, BaseLink::FLAG_STOREPATH | BaseLink::FLAG_STRONGLINK> l_topology;
+    
 	//rest data
 	unsigned int m_oldRestPositionSize;
 	VecNeighborhood m_pointNeighborhood, m_lastPointNeighborhood;

@@ -48,7 +48,8 @@ using namespace sofa::core::topology;
 
 template <class DataTypes>
 ShapeMatchingRotationFinder<DataTypes>::ShapeMatchingRotationFinder()
-: m_topo(nullptr)
+: l_mechanicalState(initLink("mechanicalState", "link to the mechanical state"))
+, l_topology(initLink("topology", "link to the topology container"))
 , d_axisToFlip(initData(&d_axisToFlip, int(-1), "axisToFlip", "Flip Axis"))
 , d_showRotations(initData(&d_showRotations, bool(false), "showRotations", "Show Rotations"))
 , d_neighborhoodLevel(initData(&d_neighborhoodLevel, int(1), "neighborhoodLevel", "Neighborhood level"))
@@ -56,6 +57,7 @@ ShapeMatchingRotationFinder<DataTypes>::ShapeMatchingRotationFinder()
 , d_maxIter(initData(&d_maxIter, unsigned(500), "maxIter", "Number of iterations to build the neighborhood"))
 , d_epsilon(initData(&d_epsilon, Real(0.0000000001), "epsilon", "epsilon"))
 , d_radius(initData(&d_radius, Real(0.001), "radius", "radius between Cm and point position"))
+, m_oldRestPositionSize(0)
 {
 
 }
@@ -69,26 +71,41 @@ ShapeMatchingRotationFinder<DataTypes>::~ShapeMatchingRotationFinder()
 template <class DataTypes>
 void ShapeMatchingRotationFinder<DataTypes>::init()
 {
+    this->d_componentState.setValue(sofa::core::objectmodel::ComponentState::Invalid);
+
     //Retrieve informations
 	//- Mechanical State
-	this->getContext()->get(m_mechanicalState);
-
-	if (!m_mechanicalState)
-	{
-	    serr << "ERROR: RotationFinder has not found any mechanicalState" << sendl;
-	    return;
-	}
+    if (!l_mechanicalState.get())
+    {
+        sofa::core::sptr<core::behavior::MechanicalState<DataTypes>> mechanicalState;
+        this->getContext()->get(mechanicalState);
+        if(!mechanicalState)
+        {
+            msg_error() << "did not found any Mechanical State.";
+            return;
+        }
+        else
+        {
+            l_mechanicalState.set(mechanicalState);
+        }
+    }
 
 	//- Topology Container
- 	this->getContext()->get(m_topo);
-// 
-// 	if (!topo)
-// 	{
-// 	    serr << "ERROR: RotationFinder has not found any BaseMeshTopology" << sendl;
-// 	    return;
-// 	}
+    if (!l_topology.get())
+    {
+        sofa::core::sptr<core::topology::BaseMeshTopology> topology;
+        this->getContext()->get(topology);
+        if (!topology)
+        {
+            msg_info() << "did not find any topology, will build standard point clusters.";
+        }
+        else
+        {
+            l_topology.set(topology);
+        }
+    }
 
-	m_oldRestPositionSize = 0;
+    this->d_componentState.setValue(sofa::core::objectmodel::ComponentState::Valid);
 }
 
 template <class DataTypes>
@@ -101,7 +118,7 @@ void ShapeMatchingRotationFinder<DataTypes>::ComputeNeighborhoodFromNeighborhood
 		Neighborhood::const_iterator it, itEnd;
 		for (it = m_lastPointNeighborhood[i].begin(), itEnd = m_lastPointNeighborhood[i].end(); it != itEnd ; ++it)
 		{
-			const type::vector<Point>& vertexVertexShell = m_topo->getVerticesAroundVertex(*it);
+			const type::vector<Point>& vertexVertexShell = l_topology->getVerticesAroundVertex(*it);
 			for (unsigned int j=0 ; j<vertexVertexShell.size(); ++j)
 			{
 				neighborhood.insert(vertexVertexShell[j]);
@@ -117,8 +134,8 @@ void ShapeMatchingRotationFinder<DataTypes>::ComputeNeighborhoodFromNeighborhood
 template <class DataTypes>
 void ShapeMatchingRotationFinder<DataTypes>::computeNeighborhood()
 {
-    const unsigned int nbPoints =  m_mechanicalState->getSize();
-    if(m_topo && d_neighborhoodLevel.getValue())
+    const unsigned int nbPoints =  l_mechanicalState->getSize();
+    if(l_topology && d_neighborhoodLevel.getValue())
     {
         m_pointNeighborhood.resize(nbPoints);
         m_lastPointNeighborhood.resize(nbPoints);
@@ -136,7 +153,7 @@ void ShapeMatchingRotationFinder<DataTypes>::computeNeighborhood()
     }
     else
     {
-        const VecCoord& X0 = m_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+        const VecCoord& X0 = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
         type::vector< unsigned int > clusterInPoint;
     
         clusterInPoint.resize(nbPoints);
@@ -256,7 +273,7 @@ void ShapeMatchingRotationFinder<DataTypes>::computeQT()
 	m_Xcm.resize(m_pointNeighborhood.size());
 	m_Xcm0.resize(m_pointNeighborhood.size());
 
-        const VecCoord& restPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+        const VecCoord& restPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
 	for (unsigned int i=0;i<m_pointNeighborhood.size();++i)
 	{
@@ -289,14 +306,14 @@ void ShapeMatchingRotationFinder<DataTypes>::flipAxis(typename ShapeMatchingRota
 template <class DataTypes>
 const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& ShapeMatchingRotationFinder<DataTypes>::getRotations()
 {
-        const VecCoord& currentPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
-        const VecCoord& restPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+        const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
+        const VecCoord& restPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
-//	unsigned int nbPoints =  m_mechanicalState->getSize();
+//	unsigned int nbPoints =  l_mechanicalState->getSize();
 
 	if (currentPositions.size() < 3)
 	{
-        serr << "RotationFinder : problem with mechanical state; return ID matrix..." << sendl;
+		msg_error() << "RotationFinder : problem with mechanical state; return ID matrix...";
 		m_rotations.clear();
 		return m_rotations;
 	}
@@ -362,98 +379,99 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 }
 
 template <class DataTypes>
-void ShapeMatchingRotationFinder<DataTypes>::getRotations(defaulttype::BaseMatrix * m,int offset) {
-    if (component::linearsolver::RotationMatrix<Real> * diag = dynamic_cast<component::linearsolver::RotationMatrix<Real> *>(m)) {
-        const VecCoord& currentPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
-        const VecCoord& restPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+void ShapeMatchingRotationFinder<DataTypes>::getRotations(defaulttype::BaseMatrix * m,int offset) 
+{
+    if (component::linearsolver::RotationMatrix<Real>* diag = dynamic_cast<component::linearsolver::RotationMatrix<Real> *>(m))
+    {
+        const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
+        const VecCoord& restPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
-//	unsigned int nbPoints =  m_mechanicalState->getSize();
+        if (currentPositions.size() < 3)
+        {
+            msg_error() << "RotationFinder : problem with mechanical state; return ID matrix...";
+            m_rotations.clear();
+            return;
+        }
 
-	if (currentPositions.size() < 3)
-	{
-                serr << "RotationFinder : problem with mechanical state; return ID matrix..." << sendl;
-		m_rotations.clear();
-		return ;
-	}
-	//if mechanical state has changed, we must compute again x0_cm and qT
-	if(m_oldRestPositionSize != restPositions.size())
-	{
-		computeNeighborhood();
-//                createClusters();
-		computeQT();
-		m_oldRestPositionSize = restPositions.size();
-	}
-	
-        unsigned int nbShapes = m_pointNeighborhood.size();
+        //if mechanical state has changed, we must compute again x0_cm and qT
+        if (m_oldRestPositionSize != restPositions.size())
+        {
+            computeNeighborhood();
+            computeQT();
+            m_oldRestPositionSize = restPositions.size();
+        }
 
-	diag->getVector().resize(nbShapes*9);
+        const auto nbShapes = m_pointNeighborhood.size();
 
-	for (unsigned int i=0 ; i<nbShapes ; i++)
-	{
-	    //we compute A_pq matrix
-	    Mat3x3 A_pq(0);
+        diag->getVector().resize(nbShapes * 9);
 
-	    Coord temp;
-	    type::Mat<3,1,Real> p;
-	    type::Mat<1,3,Real> qT;
+        for (unsigned int i = 0; i < nbShapes; i++)
+        {
+            //we compute A_pq matrix
+            Mat3x3 A_pq(0);
+
+            Coord temp;
+            type::Mat<3, 1, Real> p;
+            type::Mat<1, 3, Real> qT;
 
             Coord center;
-	    Neighborhood::const_iterator it, itEnd;
-	    for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd ; ++it)
-		center += currentPositions[*it];
+            Neighborhood::const_iterator it, itEnd;
+            for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd; ++it)
+                center += currentPositions[*it];
 
-	    center /= m_pointNeighborhood[i].size();
-	    m_Xcm[i] = center;
+            center /= m_pointNeighborhood[i].size();
+            m_Xcm[i] = center;
 
-	    for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd ; ++it)
-	    {
-		Coord neighbor = currentPositions[*it];
-		
-		temp = (neighbor - center);
+            for (it = m_pointNeighborhood[i].begin(), itEnd = m_pointNeighborhood[i].end(); it != itEnd; ++it)
+            {
+                Coord neighbor = currentPositions[*it];
 
-		for (unsigned int k=0 ;k<3 ;k++)
-			p[k][0] = temp[k];
+                temp = (neighbor - center);
 
-		qT[0] = restPositions[*it] - m_Xcm0[i];
+                for (unsigned int k = 0; k < 3; k++)
+                    p[k][0] = temp[k];
 
-		A_pq += 1*(p*qT);
-	    }
-        Mat3x3 R;
-        helper::Decompose<Real>::polarDecomposition(A_pq, R);
+                qT[0] = restPositions[*it] - m_Xcm0[i];
 
-	    //test R is rotation or symmetry
-	    //-> negative if symmetry
-	    if (determinant(R) < 0)
-		flipAxis(R);
+                A_pq += 1 * (p * qT);
+            }
+            Mat3x3 R;
+            helper::Decompose<Real>::polarDecomposition(A_pq, R);
 
-	    *((Mat3x3 *) &diag->getVector()[i*9]) = R;
-	}
-    } else {
-	getRotations();
-	m->resize(m_rotations.size()*3,m_rotations.size()*3);
-	
-	for (unsigned i=0;i<m_rotations.size();i++) {
-	    int e = i*3+offset;
-	    m->set(e+0,e+0,m_rotations[i][0][0]);
-	    m->set(e+0,e+1,m_rotations[i][0][1]);
-	    m->set(e+0,e+2,m_rotations[i][0][2]);
-	    
-	    m->set(e+1,e+0,m_rotations[i][1][0]);
-	    m->set(e+1,e+1,m_rotations[i][1][1]);
-	    m->set(e+1,e+2,m_rotations[i][1][2]);
-	    
-	    m->set(e+2,e+0,m_rotations[i][2][0]);
-	    m->set(e+2,e+1,m_rotations[i][2][1]);
-	    m->set(e+2,e+2,m_rotations[i][2][2]);
-	}
+            //test R is rotation or symmetry
+            //-> negative if symmetry
+            if (determinant(R) < 0)
+                flipAxis(R);
+
+            *((Mat3x3*)&diag->getVector()[i * 9]) = R;
+        }
+    }
+    else {
+        getRotations();
+        m->resize(m_rotations.size() * 3, m_rotations.size() * 3);
+
+        for (unsigned i = 0; i < m_rotations.size(); i++) {
+            int e = i * 3 + offset;
+            m->set(e + 0, e + 0, m_rotations[i][0][0]);
+            m->set(e + 0, e + 1, m_rotations[i][0][1]);
+            m->set(e + 0, e + 2, m_rotations[i][0][2]);
+
+            m->set(e + 1, e + 0, m_rotations[i][1][0]);
+            m->set(e + 1, e + 1, m_rotations[i][1][1]);
+            m->set(e + 1, e + 2, m_rotations[i][1][2]);
+
+            m->set(e + 2, e + 0, m_rotations[i][2][0]);
+            m->set(e + 2, e + 1, m_rotations[i][2][1]);
+            m->set(e + 2, e + 2, m_rotations[i][2][2]);
+        }
     }
 }
 
 template <class DataTypes>
 const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::DMat3x3>& ShapeMatchingRotationFinder<DataTypes>::getDRotations()
 {
-	//const VecCoord& restPositions = *m_mechanicalState->getX0();
-	//const VecDeriv& dx = *m_mechanicalState->getV();
+	//const VecCoord& restPositions = *l_mechanicalState->getX0();
+	//const VecDeriv& dx = *l_mechanicalState->getV();
 
 	unsigned int nbShapes = m_pointNeighborhood.size();
 
@@ -491,7 +509,7 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 		getDRotations();
 	}
 
-    const VecCoord& restPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+    const VecCoord& restPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
 	const auto nbShapes = m_pointNeighborhood.size();
 
@@ -551,7 +569,7 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
     if (d_showRotations.getValue())
     {
 
-        const VecCoord& currentPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
+        const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
 	
         getRotations();
 
@@ -582,7 +600,7 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
         
     if (vparams->displayFlags().getShowForceFields())
     {
-        const VecCoord& currentPositions = m_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
+        const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
         
         if (!d_showRotations.getValue())
             getRotations();
