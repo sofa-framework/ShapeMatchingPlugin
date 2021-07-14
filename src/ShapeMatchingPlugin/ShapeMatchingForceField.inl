@@ -73,31 +73,30 @@ void ShapeMatchingForceField<DataTypes>::addForce(const core::MechanicalParams* 
     if (d_componentState.getValue() != sofa::core::objectmodel::ComponentState::Valid)
         return;
 
-    sofa::helper::WriteAccessor< core::objectmodel::Data< VecDeriv > > f1 = f;
-    sofa::helper::ReadAccessor< core::objectmodel::Data< VecCoord > > p1 = x;
+    auto f1 = sofa::helper::getWriteOnlyAccessor(f);
+    auto p1 = sofa::helper::getReadAccessor(x);
 
     type::Mat<3,1,Real> q;
-    const type::vector<Mat3x3>& vR = l_rotationFinder->getRotations();
-    const VecCoord& vcm = l_rotationFinder->getCM();
-    const VecCoord& vcm0 = l_rotationFinder->getCM0();
-    const typename container::ShapeMatchingRotationFinder<DataTypes>::VecNeighborhood& vNeighborhood = l_rotationFinder->getNeighborhood();
-    const VecCoord& x0 = this->mstate->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+    const auto& vR = l_rotationFinder->getRotations();
+    const auto& vcm = l_rotationFinder->getCM();
+    const auto& vcm0 = l_rotationFinder->getCM0();
+    const auto& vNeighborhood = l_rotationFinder->getNeighborhood();
+    const auto& x0 = this->mstate->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
     Coord gi, xi;
 
     f1.resize(p1.size());
-
+    const auto& stiffness = d_stiffness.getValue();
     for (unsigned int i=0; i<vNeighborhood.size(); ++i)
     {
-        Mat3x3 R = vR[i];
-        Coord Xcm = vcm[i];
-        Coord Xcm0 = vcm0[i];
-        typename container::ShapeMatchingRotationFinder<DataTypes>::Neighborhood::const_iterator it, itEnd;
-        for (it = vNeighborhood[i].begin(), itEnd = vNeighborhood[i].end(); it != itEnd ; ++it)
+        const Mat3x3& R = vR[i];
+        const Coord& Xcm = vcm[i];
+        const Coord& Xcm0 = vcm0[i];
+
+        for(const auto& ni : vNeighborhood[i])
         {
-            unsigned int neighbor_i = *it;
-            gi = Xcm + R*(x0[neighbor_i] - Xcm0);
-            xi = p1[neighbor_i];
-            f1[neighbor_i] += (gi-xi)*d_stiffness.getValue();
+            gi = Xcm + R*(x0[ni] - Xcm0);
+            xi = p1[ni];
+            f1[ni] += (gi - xi) * stiffness;
         }
     }
 }
@@ -108,13 +107,13 @@ void ShapeMatchingForceField<DataTypes>::addDForce(const core::MechanicalParams*
     if (d_componentState.getValue() != sofa::core::objectmodel::ComponentState::Valid)
         return;
 
-    sofa::helper::WriteAccessor< core::objectmodel::Data< VecDeriv > > df1 = df;
-    sofa::helper::ReadAccessor< core::objectmodel::Data< VecDeriv > > dp1 = dx;
+    auto df1 = sofa::helper::getWriteOnlyAccessor(df);
+    auto dp1 = sofa::helper::getReadAccessor(dx);
 
-    const type::vector<Mat3x3>& vDR = l_rotationFinder->getDRotations(dx.getValue());
-    const VecCoord& vcm0 = l_rotationFinder->getCM0();
-    const typename container::ShapeMatchingRotationFinder<DataTypes>::VecNeighborhood& vNeighborhood = l_rotationFinder->getNeighborhood();
-    const VecCoord& x0 = this->mstate->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+    const auto& vDR = l_rotationFinder->getDRotations(dx.getValue());
+    const auto& vcm0 = l_rotationFinder->getCM0();
+    const auto& vNeighborhood = l_rotationFinder->getNeighborhood();
+    const auto& x0 = this->mstate->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
     df1.resize(dp1.size());
     const Real fact = d_stiffness.getValue()*mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
@@ -128,11 +127,13 @@ void ShapeMatchingForceField<DataTypes>::addDForce(const core::MechanicalParams*
         {
             dxcm += dp1[ni];
         }
+        
         dxcm /= vNeighborhood[i].size();
+
         for (const auto& ni : vNeighborhood[i])
         {
-            Coord dgi = dxcm + dR * (x0[ni] - Xcm0); // + R*(x0[ni] - Xcm0);
-            Coord dxi = dp1[ni];
+            const Coord dgi = dxcm + dR * (x0[ni] - Xcm0); // + R*(x0[ni] - Xcm0);
+            const Coord& dxi = dp1[ni];
             df1[ni] += (dgi - dxi)*fact;
         }
     }
