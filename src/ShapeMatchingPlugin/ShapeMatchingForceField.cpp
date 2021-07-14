@@ -28,37 +28,15 @@
 #include <sofa/defaulttype/VecTypes.h>
 #include <sofa/core/ObjectFactory.h>
 
-namespace sofa
-{
-
-namespace component
-{
-
-namespace forcefield
+namespace sofa::component::forcefield
 {
 
 using namespace sofa::defaulttype;
 
-
-SOFA_DECL_CLASS(ShapeMatchingForceField)
-
 int ShapeMatchingForceFieldClass = core::RegisterObject("Meshless deformations based on shape matching")
-#ifndef SOFA_FLOAT
 .add< ShapeMatchingForceField<Vec3dTypes> >()
-#endif
-#ifndef SOFA_DOUBLE
-.add< ShapeMatchingForceField<Vec3fTypes> >()
-#endif
 ;
-#ifndef SOFA_FLOAT
+
 template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingForceField<Vec3dTypes>;
-#endif
-#ifndef SOFA_DOUBLE
-template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingForceField<Vec3fTypes>;
-#endif
 
-} // namespace forcefield
-
-} // namespace component
-
-} // namespace sofa
+} // namespace sofa::component::forcefield

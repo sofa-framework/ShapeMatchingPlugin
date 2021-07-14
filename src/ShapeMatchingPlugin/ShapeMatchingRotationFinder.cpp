@@ -35,42 +35,17 @@
 #include <ShapeMatchingPlugin/ShapeMatchingRotationFinder.inl>
 #include <sofa/core/ObjectFactory.h>
 
-namespace sofa
-{
-
-namespace component
-{
-
-namespace container
+namespace sofa::component::container
 {
 
 using namespace sofa::defaulttype;
 
-SOFA_DECL_CLASS(ShapeMatchingRotationFinder)
-
 // Register in the Factory
 int ShapeMatchingRotationFinderClass = core::RegisterObject("ShapeMatchingRotationFinder")
-#ifndef SOFA_FLOAT
 .add< ShapeMatchingRotationFinder< Vec3dTypes > >()
-//.add< ShapeMatchingRotationFinder< Vec2dTypes > >()
-#endif
-#ifndef SOFA_DOUBLE
-.add< ShapeMatchingRotationFinder< Vec3fTypes > >()
-//.add< ShapeMatchingRotationFinder< Vec2fTypes > >()
-#endif
 .addAlias("RotationFinder")
 ;
-#ifndef SOFA_FLOAT
+
 template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec3dTypes >;
-//template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec2dTypes >;
-#endif
-#ifndef SOFA_DOUBLE
-template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec3fTypes >;
-//template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec2fTypes >;
-#endif
 
-} // namespace container
-
-} // namespace component
-
-} // namespace sofa
+} // namespace sofa::component::container

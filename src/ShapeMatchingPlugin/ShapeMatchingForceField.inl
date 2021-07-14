@@ -22,8 +22,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_INL
-#define SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_INL
+#pragma once
 
 #include <sofa/core/behavior/ForceField.inl>
 #include <ShapeMatchingPlugin/ShapeMatchingForceField.h>
@@ -33,13 +32,7 @@
 #include <iostream>
 #include <sofa/simulation/Node.h>
 
-namespace sofa
-{
-
-namespace component
-{
-
-namespace forcefield
+namespace sofa::component::forcefield
 {
 
 template<class DataTypes>
@@ -113,10 +106,4 @@ void ShapeMatchingForceField<DataTypes>::draw(const core::visual::VisualParams* 
 }
 
 
-} // namespace forcefield
-
-} // namespace component
-
-} // namespace sofa
-
-#endif // SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_INL
+} // namespace sofa::component::forcefield

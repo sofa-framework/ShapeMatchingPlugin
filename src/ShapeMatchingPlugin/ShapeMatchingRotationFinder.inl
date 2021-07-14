@@ -29,8 +29,7 @@
  *      Author: froy
  */
 
-#ifndef SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_INL
-#define SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_INL
+#pragma once
 
 #include <ShapeMatchingPlugin/ShapeMatchingRotationFinder.h>
 
@@ -42,20 +41,14 @@
 #include <ShapeMatchingPlugin/polar_decomposition_3x3.h>
 
 
-namespace sofa
-{
-
-namespace component
-{
-
-namespace container
+namespace sofa::component::container
 {
 
 using namespace sofa::core::topology;
 
 template <class DataTypes>
 ShapeMatchingRotationFinder<DataTypes>::ShapeMatchingRotationFinder()
-: m_topo(NULL)
+: m_topo(nullptr)
 , d_axisToFlip(initData(&d_axisToFlip, int(-1), "axisToFlip", "Flip Axis"))
 , d_showRotations(initData(&d_showRotations, bool(false), "showRotations", "Show Rotations"))
 , d_neighborhoodLevel(initData(&d_neighborhoodLevel, int(1), "neighborhoodLevel", "Neighborhood level"))
@@ -76,7 +69,7 @@ ShapeMatchingRotationFinder<DataTypes>::~ShapeMatchingRotationFinder()
 template <class DataTypes>
 void ShapeMatchingRotationFinder<DataTypes>::init()
 {
-        //Retrieve informations
+    //Retrieve informations
 	//- Mechanical State
 	this->getContext()->get(m_mechanicalState);
 
@@ -551,22 +544,6 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 }
 
 template <class DataTypes>
-void ShapeMatchingRotationFinder<DataTypes>::handleEvent(sofa::core::objectmodel::Event* event)
-{
-	 if (sofa::core::objectmodel::KeypressedEvent* ev = dynamic_cast<sofa::core::objectmodel::KeypressedEvent*>(event))
-	    {
-	        switch(ev->getKey())
-	        {
-				case 'i':
-				case 'I':
-					std::cout << "Rotation Matrix: " << std::endl;
-					std::cout << getRotations() << std::endl;
-					break;
-			}
-		}
-}
-
-template <class DataTypes>
 void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualParams* vparams)
 {
 	vparams->drawTool()->saveLastState();
@@ -641,11 +618,4 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
 	vparams->drawTool()->restoreLastState();
 }
 
-} // namespace container
-
-} // namespace component
-
-} // namespace sofa
-
-
-#endif /* SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_INL */
+} // namespace sofa::component::container

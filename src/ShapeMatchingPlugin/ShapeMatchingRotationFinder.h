@@ -29,8 +29,7 @@
  *      Author: froy
  */
 
-#ifndef SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_H
-#define SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_H
+#pragma once
 
 #include <ShapeMatchingPlugin/config.h>
 #include <sofa/core/behavior/RotationFinder.h>
@@ -48,19 +47,13 @@
  *
  */
 
-namespace sofa
+namespace sofa::core::objectmodel
 {
+	class Event;
 
-namespace core {
-	namespace objectmodel {
-		class Event;
-	} // namespace objectmodel
-} // namespace core
+} // namespace sofa::core::objectmodel
 
-namespace component
-{
-
-namespace container
+namespace sofa::component::container
 {
 
 template <class DataTypes>
@@ -119,29 +112,18 @@ protected:
 
 public:
 	void init();
+	void draw(const core::visual::VisualParams* vparams);
+	void getRotations(defaulttype::BaseMatrix* m, int offset = 0);
 
 	const type::vector<Mat3x3>& getRotations();
-	
-	void getRotations(defaulttype::BaseMatrix * m,int offset = 0) ;
-
 	const type::vector<DMat3x3>& getDRotations();
-
 	const type::vector<Mat3x3>& getDRotations(const VecDeriv& dx);
 
 	void computeQT();
-
 	const VecCoord& getCM() { return m_Xcm; }
-
 	const VecCoord& getCM0() { return m_Xcm0; }
-
 	void computeNeighborhood();
-
 	const VecNeighborhood& getNeighborhood();
-
-	void handleEvent(sofa::core::objectmodel::Event*);
-
-	void draw(const core::visual::VisualParams* vparams);
-
 	void flipAxis(Mat3x3 & rotation);
         
 public:
@@ -167,19 +149,8 @@ public:
 	}
 };
 
-#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_CPP)
-#ifndef SOFA_FLOAT
+#if !defined(SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_CPP)
 extern template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec3dTypes >;
 #endif
-#ifndef SOFA_DOUBLE
-extern template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec3fTypes >;
-#endif
-#endif
 
-} // namespace container
-
-} // namespace component
-
-} // namespace sofa
-
-#endif /* SOFA_COMPONENT_CONTAINER_SHAPEMATCHINGROTATIONFINDER_H */
+} // namespace sofa::component::container

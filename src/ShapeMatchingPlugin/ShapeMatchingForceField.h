@@ -22,8 +22,7 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-#ifndef SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_H
-#define SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_H
+#pragma once
 
 #include <sofa/core/behavior/ForceField.h>
 #include <sofa/core/behavior/MechanicalState.h>
@@ -31,13 +30,7 @@
 #include <sofa/core/objectmodel/Event.h>
 #include <ShapeMatchingPlugin/ShapeMatchingRotationFinder.h>
 
-namespace sofa
-{
-
-namespace component
-{
-
-namespace forcefield
+namespace sofa::component::forcefield
 {
 
 /// This class can be overridden if needed for additionnal storage within template specializations.
@@ -184,24 +177,8 @@ public:
 
 };
 
-using sofa::defaulttype::Vec3dTypes;
-using sofa::defaulttype::Vec3fTypes;
+#if !defined(SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_CPP)
+extern template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingForceField<defaulttype::Vec3dTypes>;
+#endif // !defined(SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_CPP)
 
-#if defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_CPP)
-
-#ifndef SOFA_FLOAT
-extern template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingForceField<Vec3dTypes>;
-#endif
-#ifndef SOFA_DOUBLE
-extern template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingForceField<Vec3fTypes>;
-#endif
-
-#endif // defined(SOFA_EXTERN_TEMPLATE) && !defined(SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_CPP)
-
-} // namespace forcefield
-
-} // namespace component
-
-} // namespace sofa
-
-#endif // SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_H
+} // namespace sofa::component::forcefield
