@@ -33,7 +33,7 @@
 
 #include <ShapeMatchingPlugin/ShapeMatchingRotationFinder.h>
 
-#include <sofa/core/behavior/RotationMatrix.h>
+#include <SofaBaseLinearSolver/RotationMatrix.h>
 #include <sofa/core/objectmodel/KeypressedEvent.h>
 #include <sofa/core/visual/VisualParams.h>
 
