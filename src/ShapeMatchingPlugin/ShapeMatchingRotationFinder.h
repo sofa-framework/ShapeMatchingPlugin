@@ -73,35 +73,29 @@ private:
 	type::vector<DMat3x3> m_dRotations;
 	type::vector<Mat3x3> m_dRotations_dx;
 
-    template<class T>
-    T min(const T a, const T b) const
-	{
-		return a < b ? a : b;
-	}
-
 	void ComputeNeighborhoodFromNeighborhood();
 
 public:
-	enum Axis { X, Y, Z };
+	enum class Axis { X, Y, Z };
 
 	Data<int> d_axisToFlip;
 	Data<bool> d_showRotations;
 	Data<int> d_neighborhoodLevel;
-	Data<int> d_numOfClusters;
+	Data<unsigned int> d_numOfClusters;
 	Data<unsigned int> d_maxIter;
 	Data<Real> d_epsilon;
 	Data<Real> d_radius;
 
 protected:
 	ShapeMatchingRotationFinder();
-	virtual ~ShapeMatchingRotationFinder();
+	~ShapeMatchingRotationFinder() override;
 
 public:
-	void init();
-	void draw(const core::visual::VisualParams* vparams);
-	void getRotations(linearalgebra::BaseMatrix* m, int offset = 0);
+	void init() override;
+	void draw(const core::visual::VisualParams* vparams) override;
+	void getRotations(linearalgebra::BaseMatrix* m, int offset = 0) override;
 
-	const type::vector<Mat3x3>& getRotations();
+	const type::vector<Mat3x3>& getRotations() override;
 	const type::vector<DMat3x3>& getDRotations();
 	const type::vector<Mat3x3>& getDRotations(const VecDeriv& dx);
 
@@ -122,16 +116,6 @@ public:
 			return false;
 
 		return core::objectmodel::BaseObject::canCreate(obj, context, arg);
-	}
-
-	virtual std::string getTemplateName() const
-	{
-		return templateName(this);
-	}
-
-	static std::string templateName(const ShapeMatchingRotationFinder<DataTypes>* = NULL)
-	{
-		return DataTypes::Name();
 	}
 };
 

@@ -14,21 +14,20 @@
     <Node name="cubeFEM">
         <EulerImplicitSolver name="cg_odesolver" printLog="false" />
         <CGLinearSolver iterations="25" name="linear solver" tolerance="1.0e-9" threshold="1.0e-9" />
-        <MeshObjLoader name="loader" filename="mesh/dragon.obj" />
+        <MeshOBJLoader name="loader" filename="mesh/dragon.obj" />
         <MeshTopology src="@loader" />
         <MechanicalObject src="@loader" scale="1" dz="10" />
         <UniformMass totalMass="3" />
-        <RotationFinder numOfClusters="50" radius="0" />
+        <RotationFinder  />
         <ShapeMatchingForceField name="ShapeMatching" stiffness="100" />
+        <MeshOBJLoader name="loader" filename="mesh/dragon.obj" />
         <Node name="Visu">
-            <MeshObjLoader name="loader" filename="mesh/dragon.obj"/>
-            <OglModel name="Visual" src="@loader" color="red" dz="10" />
+            <OglModel name="Visual" src="@../loader" color="red" dz="10" />
             <IdentityMapping input="@.." output="@Visual" />
         </Node>
         <Node name="Surf">
-            <MeshObjLoader name="loader" filename="mesh/dragon.obj" />
-            <MeshTopology src="@loader" />
-            <MechanicalObject src="@loader" dz="10" />
+            <MeshTopology src="@../loader" />
+            <MechanicalObject src="@../loader" dz="10" />
             <TriangleCollisionModel contactStiffness="1000" />
             <LineCollisionModel contactStiffness="1000" />
             <PointCollisionModel contactStiffness="1000" />
@@ -36,7 +35,7 @@
         </Node>
     </Node>
     <Node name="Floor">
-        <MeshObjLoader name="loader" filename="mesh/floor3.obj" />
+        <MeshOBJLoader name="loader" filename="mesh/floor3.obj" />
         <MeshTopology src="@loader" />
         <MechanicalObject src="@loader" dy="-10" scale="1.75" />
         <TriangleCollisionModel name="FloorTriangle" simulated="0" moving="0" />

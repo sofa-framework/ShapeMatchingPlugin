@@ -46,7 +46,7 @@ ShapeMatchingRotationFinder<DataTypes>::ShapeMatchingRotationFinder()
 , d_axisToFlip(initData(&d_axisToFlip, int(-1), "axisToFlip", "Flip Axis"))
 , d_showRotations(initData(&d_showRotations, bool(false), "showRotations", "Show Rotations"))
 , d_neighborhoodLevel(initData(&d_neighborhoodLevel, int(1), "neighborhoodLevel", "Neighborhood level"))
-, d_numOfClusters(initData(&d_numOfClusters, int(1), "numOfClusters", "Number of clusters"))
+, d_numOfClusters(initData(&d_numOfClusters, unsigned int(1) , "numOfClusters", "Number of clusters"))
 , d_maxIter(initData(&d_maxIter, unsigned(500), "maxIter", "Number of iterations to build the neighborhood"))
 , d_epsilon(initData(&d_epsilon, Real(0.0000000001), "epsilon", "epsilon"))
 , d_radius(initData(&d_radius, Real(0.001), "radius", "radius between Cm and point position"))
@@ -150,7 +150,7 @@ void ShapeMatchingRotationFinder<DataTypes>::computeNeighborhood()
         type::vector< unsigned int > clusterInPoint;
     
         clusterInPoint.resize(nbPoints);
-        m_pointNeighborhood.resize(min<int>(d_numOfClusters.getValue(), nbPoints));
+        m_pointNeighborhood.resize(std::min(d_numOfClusters.getValue(), nbPoints));
     
         if (m_pointNeighborhood.size()>1)
         {
@@ -201,7 +201,7 @@ void ShapeMatchingRotationFinder<DataTypes>::computeNeighborhood()
                     {
                         dist = (m_Xcm0[j] - X0[i]).norm2();
     
-                        if (min<double>(dist, minDist) == dist)
+                        if (std::min(dist, minDist) == dist)
                         {
                             minDist = dist;
                             nearestCm0 = j;
@@ -233,7 +233,7 @@ void ShapeMatchingRotationFinder<DataTypes>::computeNeighborhood()
                     { 
                         dist = (m_Xcm0[j] - X0[i]).norm2();
     
-                        if (min<double>(dist, minDist) == dist)
+                        if (std::min(dist, minDist) == dist)
                         {
                             minDist = dist;
                             nearestCm0 = j;
@@ -463,15 +463,15 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::DMat3x3>& Sh
 	auto nbShapes = m_pointNeighborhood.size();
 
 	m_dRotations.resize(nbShapes);
-	const Real d_epsilon = (Real) 0.000001;
-	const auto invEpsilon = (((Real)1.0) / d_epsilon);
+	constexpr Real epsilon = (Real) 0.000001;
+	constexpr auto invEpsilon = (((Real)1.0) / epsilon);
 	for (unsigned int i=0 ; i<nbShapes ; i++)
 	{
 	    for (int l=0;l<3;++l)
 	        for (int c=0;c<3;++c)
 	    {
 			Mat3x3 A = m_vecA[i];
-			A[l][c]+=d_epsilon;
+			A[l][c]+=epsilon;
 			Mat3x3 R, H;
 			polar::polar_decomposition(R.ptr(), H.ptr(), A.ptr());
 			//test R is rotation or symmetry
