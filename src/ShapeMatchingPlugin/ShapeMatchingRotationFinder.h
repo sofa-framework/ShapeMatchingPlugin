@@ -81,8 +81,8 @@ public:
 	Data<int> d_axisToFlip;
 	Data<bool> d_showRotations;
 	Data<int> d_neighborhoodLevel;
-	Data<unsigned int> d_numOfClusters;
-	Data<unsigned int> d_maxIter;
+	Data<unsigned> d_numOfClusters;
+	Data<unsigned> d_maxIter;
 	Data<Real> d_epsilon;
 	Data<Real> d_radius;
 
