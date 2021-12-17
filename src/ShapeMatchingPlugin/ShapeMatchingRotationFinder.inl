@@ -22,18 +22,11 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-/*
- * RotationFinder.inl
- *
- *  Created on: 14 avr. 2009
- *      Author: froy
- */
-
 #pragma once
 
 #include <ShapeMatchingPlugin/ShapeMatchingRotationFinder.h>
 
-#include <SofaBaseLinearSolver/RotationMatrix.h>
+#include <sofa/linearalgebra/RotationMatrix.h>
 #include <sofa/core/objectmodel/KeypressedEvent.h>
 #include <sofa/core/visual/VisualParams.h>
 
@@ -269,11 +262,10 @@ void ShapeMatchingRotationFinder<DataTypes>::computeNeighborhood()
 template <class DataTypes>
 void ShapeMatchingRotationFinder<DataTypes>::computeQT()
 {
-
 	m_Xcm.resize(m_pointNeighborhood.size());
 	m_Xcm0.resize(m_pointNeighborhood.size());
 
-        const VecCoord& restPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+    const VecCoord& restPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
 	for (unsigned int i=0;i<m_pointNeighborhood.size();++i)
 	{
@@ -306,10 +298,8 @@ void ShapeMatchingRotationFinder<DataTypes>::flipAxis(typename ShapeMatchingRota
 template <class DataTypes>
 const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& ShapeMatchingRotationFinder<DataTypes>::getRotations()
 {
-        const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
-        const VecCoord& restPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
-
-//	unsigned int nbPoints =  l_mechanicalState->getSize();
+    const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
+    const VecCoord& restPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
 
 	if (currentPositions.size() < 3)
 	{
@@ -325,7 +315,7 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 		m_oldRestPositionSize = restPositions.size();
 	}
 	
-    unsigned int nbShapes = m_pointNeighborhood.size();
+    auto nbShapes = m_pointNeighborhood.size();
 
 	m_rotations.resize(nbShapes);
 	m_dRotations.clear();
@@ -363,7 +353,6 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 		A_pq += 1*(p*qT);
 	    }
         Mat3x3 R, H;
-        //helper::Decompose<Real>::polarDecomposition(A_pq, R);
 		polar::polar_decomposition(R.ptr(), H.ptr(), A_pq.ptr());
 
 	    //test R is rotation or symmetry
@@ -379,9 +368,9 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 }
 
 template <class DataTypes>
-void ShapeMatchingRotationFinder<DataTypes>::getRotations(defaulttype::BaseMatrix * m,int offset) 
+void ShapeMatchingRotationFinder<DataTypes>::getRotations(linearalgebra::BaseMatrix * m,int offset) 
 {
-    if (component::linearsolver::RotationMatrix<Real>* diag = dynamic_cast<component::linearsolver::RotationMatrix<Real> *>(m))
+    if (auto* diag = dynamic_cast<linearalgebra::RotationMatrix<Real> *>(m))
     {
         const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
         const VecCoord& restPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
@@ -446,9 +435,10 @@ void ShapeMatchingRotationFinder<DataTypes>::getRotations(defaulttype::BaseMatri
             *((Mat3x3*)&diag->getVector()[i * 9]) = R;
         }
     }
-    else {
+    else 
+    {
         getRotations();
-        m->resize(m_rotations.size() * 3, m_rotations.size() * 3);
+        m->resize(sofa::SignedIndex(m_rotations.size() * 3), sofa::SignedIndex(m_rotations.size() * 3));
 
         for (unsigned i = 0; i < m_rotations.size(); i++) {
             int e = i * 3 + offset;
@@ -470,10 +460,7 @@ void ShapeMatchingRotationFinder<DataTypes>::getRotations(defaulttype::BaseMatri
 template <class DataTypes>
 const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::DMat3x3>& ShapeMatchingRotationFinder<DataTypes>::getDRotations()
 {
-	//const VecCoord& restPositions = *l_mechanicalState->getX0();
-	//const VecDeriv& dx = *l_mechanicalState->getV();
-
-	unsigned int nbShapes = m_pointNeighborhood.size();
+	auto nbShapes = m_pointNeighborhood.size();
 
 	m_dRotations.resize(nbShapes);
 	const Real d_epsilon = (Real) 0.000001;
@@ -486,7 +473,6 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::DMat3x3>& Sh
 			Mat3x3 A = m_vecA[i];
 			A[l][c]+=d_epsilon;
 			Mat3x3 R, H;
-			//helper::Decompose<Real>::polarDecomposition(A, R);
 			polar::polar_decomposition(R.ptr(), H.ptr(), A.ptr());
 			//test R is rotation or symmetry
 			//-> negative if symmetry

@@ -18,7 +18,7 @@ set(SOURCE_FILES
     ${SHAPEMATCHINGPLUGIN_SRC}/ShapeMatchingForceField.cpp
 )
 
-sofa_find_package(SofaBase REQUIRED) # SofaBaseLinearSolver
+find_package(SofaBaseLinearSolver REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} PUBLIC SofaBaseLinearSolver)

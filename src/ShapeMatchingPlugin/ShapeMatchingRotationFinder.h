@@ -22,13 +22,6 @@
 *                                                                             *
 * Contact information: contact@sofa-framework.org                             *
 ******************************************************************************/
-/*
- * RotationFinder.h
- *
- *  Created on: 14 avr. 2009
- *      Author: froy
- */
-
 #pragma once
 
 #include <ShapeMatchingPlugin/config.h>
@@ -46,13 +39,6 @@
  *	"Meshless Deformations Based on Shape Matching" (Muller, Heidelberger, Teschner and Gross)
  *
  */
-
-namespace sofa::core::objectmodel
-{
-	class Event;
-
-} // namespace sofa::core::objectmodel
-
 namespace sofa::component::container
 {
 
@@ -80,7 +66,7 @@ private:
 	SingleLink<ShapeMatchingRotationFinder<DataTypes>, sofa::core::topology::BaseMeshTopology, BaseLink::FLAG_STOREPATH | BaseLink::FLAG_STRONGLINK> l_topology;
     
 	//rest data
-	unsigned int m_oldRestPositionSize;
+	std::size_t m_oldRestPositionSize;
 	VecNeighborhood m_pointNeighborhood, m_lastPointNeighborhood;
 	VecCoord m_Xcm, m_Xcm0;
 	type::vector<Mat3x3> m_rotations, m_vecA;
@@ -113,7 +99,7 @@ protected:
 public:
 	void init();
 	void draw(const core::visual::VisualParams* vparams);
-	void getRotations(defaulttype::BaseMatrix* m, int offset = 0);
+	void getRotations(linearalgebra::BaseMatrix* m, int offset = 0);
 
 	const type::vector<Mat3x3>& getRotations();
 	const type::vector<DMat3x3>& getDRotations();
