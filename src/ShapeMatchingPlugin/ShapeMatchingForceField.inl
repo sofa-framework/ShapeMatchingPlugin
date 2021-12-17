@@ -70,7 +70,7 @@ void ShapeMatchingForceField<DataTypes>::init()
 template<class DataTypes>
 void ShapeMatchingForceField<DataTypes>::addForce(const core::MechanicalParams* /* mparams */ /* PARAMS FIRST */, DataVecDeriv& f, const DataVecCoord& x, const DataVecDeriv& /* v */)
 {
-    if (d_componentState.getValue() != sofa::core::objectmodel::ComponentState::Valid)
+    if (this->d_componentState.getValue() != sofa::core::objectmodel::ComponentState::Valid)
         return;
 
     auto f1 = sofa::helper::getWriteOnlyAccessor(f);
@@ -104,7 +104,7 @@ void ShapeMatchingForceField<DataTypes>::addForce(const core::MechanicalParams* 
 template<class DataTypes>
 void ShapeMatchingForceField<DataTypes>::addDForce(const core::MechanicalParams* mparams /* PARAMS FIRST */, DataVecDeriv& df, const DataVecDeriv& dx)
 {
-    if (d_componentState.getValue() != sofa::core::objectmodel::ComponentState::Valid)
+    if (this->d_componentState.getValue() != sofa::core::objectmodel::ComponentState::Valid)
         return;
 
     auto df1 = sofa::helper::getWriteOnlyAccessor(df);
