@@ -71,7 +71,7 @@ public:
 };
 
 #if !defined(SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_CPP)
-extern template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingForceField<defaulttype::Vec3dTypes>;
+extern template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingForceField<defaulttype::Vec3Types>;
 #endif // !defined(SOFA_COMPONENT_FORCEFIELD_SHAPEMATCHINGFORCEFIELD_CPP)
 
 } // namespace sofa::component::forcefield

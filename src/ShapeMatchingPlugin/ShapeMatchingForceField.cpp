@@ -31,9 +31,9 @@ namespace sofa::component::forcefield
 using namespace sofa::defaulttype;
 
 int ShapeMatchingForceFieldClass = core::RegisterObject("Meshless deformations based on shape matching")
-.add< ShapeMatchingForceField<Vec3dTypes> >()
+.add< ShapeMatchingForceField<Vec3Types> >()
 ;
 
-template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingForceField<Vec3dTypes>;
+template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingForceField<Vec3Types>;
 
 } // namespace sofa::component::forcefield
