@@ -558,7 +558,7 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
 
 		vparams->drawTool()->disableLighting();
 
-		std::vector<type::Vector3> vertices;
+		std::vector<type::Vec3> vertices;
 		std::vector<type::RGBAColor> colors;
 
 		for (unsigned int i=0 ; i<m_rotations.size() ; i++)
@@ -590,7 +590,7 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
         
 		vparams->drawTool()->disableLighting();
 
-		std::vector<type::Vector3> vertices;
+		std::vector<type::Vec3> vertices;
 		std::vector<type::RGBAColor> colors;
         
         float r, g, b;

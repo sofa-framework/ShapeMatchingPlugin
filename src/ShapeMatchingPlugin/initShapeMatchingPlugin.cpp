@@ -53,12 +53,12 @@ namespace sofa::component
 
 	const char* getModuleName()
 	{
-		return "ShapeMatchingPlugin";
+		return shapematching::MODULE_NAME;
 	}
 
 	const char* getModuleVersion()
 	{
-		return "1.0";
+		return shapematching::MODULE_VERSION;
 	}
 
 	const char* getModuleLicense()

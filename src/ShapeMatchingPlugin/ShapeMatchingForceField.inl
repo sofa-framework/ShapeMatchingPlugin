@@ -27,7 +27,6 @@
 #include <sofa/helper/rmath.h>
 #include <assert.h>
 #include <iostream>
-#include <sofa/simulation/Node.h>
 
 namespace sofa::component::forcefield
 {
