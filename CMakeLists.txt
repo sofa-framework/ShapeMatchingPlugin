@@ -3,6 +3,8 @@ project(ShapeMatchingPlugin LANGUAGES CXX)
 
 set(SHAPEMATCHINGPLUGIN_SRC "src/${PROJECT_NAME}")
 
+find_package(Sofa.Core REQUIRED)
+
 set(HEADER_FILES
     ${SHAPEMATCHINGPLUGIN_SRC}/config.h.in
     ${SHAPEMATCHINGPLUGIN_SRC}/initShapeMatchingPlugin.h
@@ -18,10 +20,8 @@ set(SOURCE_FILES
     ${SHAPEMATCHINGPLUGIN_SRC}/ShapeMatchingForceField.cpp
 )
 
-find_package(SofaBaseLinearSolver REQUIRED)
-
 add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} PUBLIC SofaBaseLinearSolver)
+target_link_libraries(${PROJECT_NAME} PUBLIC Sofa.Core)
 
 sofa_create_package_with_targets(
     PACKAGE_NAME ${PROJECT_NAME}

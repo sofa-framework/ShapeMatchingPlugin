@@ -39,10 +39,10 @@ using namespace sofa::defaulttype;
 
 // Register in the Factory
 int ShapeMatchingRotationFinderClass = core::RegisterObject("ShapeMatchingRotationFinder")
-.add< ShapeMatchingRotationFinder< Vec3dTypes > >()
+.add< ShapeMatchingRotationFinder< Vec3Types > >()
 .addAlias("RotationFinder")
 ;
 
-template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec3dTypes >;
+template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec3Types >;
 
 } // namespace sofa::component::container
