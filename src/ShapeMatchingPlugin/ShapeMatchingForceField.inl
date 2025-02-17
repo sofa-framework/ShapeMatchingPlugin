@@ -77,7 +77,7 @@ void ShapeMatchingForceField<DataTypes>::addForce(const core::MechanicalParams* 
     const auto& vcm = l_rotationFinder->getCM();
     const auto& vcm0 = l_rotationFinder->getCM0();
     const auto& vNeighborhood = l_rotationFinder->getNeighborhood();
-    const auto& x0 = this->mstate->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+    const auto& x0 = this->mstate->read(sofa::core::vec_id::read_access::restPosition)->getValue();
     Coord gi, xi;
 
     f1.resize(p1.size());
@@ -109,7 +109,7 @@ void ShapeMatchingForceField<DataTypes>::addDForce(const core::MechanicalParams*
     const auto& vDR = l_rotationFinder->getDRotations(dx.getValue());
     const auto& vcm0 = l_rotationFinder->getCM0();
     const auto& vNeighborhood = l_rotationFinder->getNeighborhood();
-    const auto& x0 = this->mstate->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+    const auto& x0 = this->mstate->read(sofa::core::vec_id::read_access::restPosition)->getValue();
 
     df1.resize(dp1.size());
     const Real fact = d_stiffness.getValue()*mparams->kFactorIncludingRayleighDamping(this->rayleighStiffness.getValue());
