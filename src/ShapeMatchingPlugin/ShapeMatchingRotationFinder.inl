@@ -143,7 +143,7 @@ void ShapeMatchingRotationFinder<DataTypes>::computeNeighborhood()
     }
     else
     {
-        const VecCoord& X0 = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+        const VecCoord& X0 = l_mechanicalState->read(sofa::core::vec_id::read_access::restPosition)->getValue();
         type::vector< unsigned int > clusterInPoint;
     
         clusterInPoint.resize(nbPoints);
@@ -262,7 +262,7 @@ void ShapeMatchingRotationFinder<DataTypes>::computeQT()
 	m_Xcm.resize(m_pointNeighborhood.size());
 	m_Xcm0.resize(m_pointNeighborhood.size());
 
-    const VecCoord& restPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+    const VecCoord& restPositions = l_mechanicalState->read(sofa::core::vec_id::read_access::restPosition)->getValue();
 
 	for (unsigned int i=0;i<m_pointNeighborhood.size();++i)
 	{
@@ -295,8 +295,8 @@ void ShapeMatchingRotationFinder<DataTypes>::flipAxis(typename ShapeMatchingRota
 template <class DataTypes>
 const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& ShapeMatchingRotationFinder<DataTypes>::getRotations()
 {
-    const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
-    const VecCoord& restPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+    const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::vec_id::read_access::position)->getValue();
+    const VecCoord& restPositions = l_mechanicalState->read(sofa::core::vec_id::read_access::restPosition)->getValue();
 
 	if (currentPositions.size() < 3)
 	{
@@ -369,8 +369,8 @@ void ShapeMatchingRotationFinder<DataTypes>::getRotations(linearalgebra::BaseMat
 {
     if (auto* diag = dynamic_cast<linearalgebra::RotationMatrix<Real> *>(m))
     {
-        const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
-        const VecCoord& restPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+        const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::vec_id::read_access::position)->getValue();
+        const VecCoord& restPositions = l_mechanicalState->read(sofa::core::vec_id::read_access::restPosition)->getValue();
 
         if (currentPositions.size() < 3)
         {
@@ -492,7 +492,7 @@ const type::vector<typename ShapeMatchingRotationFinder<DataTypes>::Mat3x3>& Sha
 		getDRotations();
 	}
 
-    const VecCoord& restPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::restPosition())->getValue();
+    const VecCoord& restPositions = l_mechanicalState->read(sofa::core::vec_id::read_access::restPosition)->getValue();
 
 	const auto nbShapes = m_pointNeighborhood.size();
 
@@ -552,7 +552,7 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
     if (d_showRotations.getValue())
     {
 
-        const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
+        const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::vec_id::read_access::position)->getValue();
 	
         getRotations();
 
@@ -583,7 +583,7 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
         
     if (vparams->displayFlags().getShowForceFields())
     {
-        const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::ConstVecCoordId::position())->getValue();
+        const VecCoord& currentPositions = l_mechanicalState->read(sofa::core::vec_id::read_access::position)->getValue();
         
         if (!d_showRotations.getValue())
             getRotations();
