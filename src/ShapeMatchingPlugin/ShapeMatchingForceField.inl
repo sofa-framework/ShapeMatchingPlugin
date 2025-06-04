@@ -47,7 +47,7 @@ void ShapeMatchingForceField<DataTypes>::init()
 
     if (!l_rotationFinder.get())
     {
-        sofa::core::sptr< container::ShapeMatchingRotationFinder<DataTypes>> rotationFinder;
+        sofa::core::sptr< ShapeMatchingRotationFinder<DataTypes>> rotationFinder;
         this->getContext()->get(rotationFinder);
         if (!rotationFinder)
         {

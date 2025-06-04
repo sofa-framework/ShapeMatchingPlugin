@@ -57,7 +57,7 @@ protected:
     ShapeMatchingForceField();
 
 public:
-    SingleLink<ShapeMatchingForceField<DataTypes>, container::ShapeMatchingRotationFinder<DataTypes>, BaseLink::FLAG_STOREPATH | BaseLink::FLAG_STRONGLINK> l_rotationFinder;
+    SingleLink<ShapeMatchingForceField<DataTypes>, ShapeMatchingRotationFinder<DataTypes>, BaseLink::FLAG_STOREPATH | BaseLink::FLAG_STRONGLINK> l_rotationFinder;
     Data<Real> d_stiffness;
 
     void init() override;
