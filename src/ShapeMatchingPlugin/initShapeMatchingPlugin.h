@@ -25,6 +25,7 @@
 #include <ShapeMatchingPlugin/config.h>
 
 namespace shapematchingplugin
+{
 
 void SOFA_SHAPEMATCHINGPLUGIN_API initShapeMatchingPlugin();
 
