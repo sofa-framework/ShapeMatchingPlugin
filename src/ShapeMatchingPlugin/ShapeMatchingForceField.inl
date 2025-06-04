@@ -28,7 +28,7 @@
 #include <assert.h>
 #include <iostream>
 
-namespace sofa::component::forcefield
+namespace shapematchingplugin
 {
 
 template<class DataTypes>
@@ -148,4 +148,4 @@ void ShapeMatchingForceField<DataTypes>::draw(const core::visual::VisualParams* 
 }
 
 
-} // namespace sofa::component::forcefield
+} // namespace shapematchingplugin
