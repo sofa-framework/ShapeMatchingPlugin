@@ -80,8 +80,8 @@ namespace shapematchingplugin
 
 	void registerObjects(sofa::core::ObjectFactory* factory)
 	{
-		void registerShapeMatchingForceField(factory);
-		void registerShapeMatchingRotationFinder(factory);
+		registerShapeMatchingForceField(factory);
+		registerShapeMatchingRotationFinder(factory);
 	}
 
 } // namespace shapematchingplugin
