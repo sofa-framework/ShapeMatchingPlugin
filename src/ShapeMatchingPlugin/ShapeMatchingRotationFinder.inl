@@ -31,7 +31,7 @@
 #include <ShapeMatchingPlugin/polar_decomposition_3x3.h>
 
 
-namespace sofa::component::container
+namespace shapematchingplugin
 {
 
 using namespace sofa::core::topology;
@@ -619,4 +619,4 @@ void ShapeMatchingRotationFinder<DataTypes>::draw(const core::visual::VisualPara
 	vparams->drawTool()->restoreLastState();
 }
 
-} // namespace sofa::component::container
+} // namespace shapematchingplugin

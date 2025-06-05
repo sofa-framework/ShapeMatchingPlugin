@@ -24,9 +24,13 @@
 ******************************************************************************/
 #include <ShapeMatchingPlugin/initShapeMatchingPlugin.h>
 #include <sofa/core/ObjectFactory.h>
+#include <sofa/helper/system/PluginManager.h>
 
-namespace sofa::component
+namespace shapematchingplugin
 {
+
+	extern void registerShapeMatchingForceField(sofa::core::ObjectFactory* factory);
+	extern void registerShapeMatchingRotationFinder(sofa::core::ObjectFactory* factory);
 
 	extern "C" {
 		SOFA_SHAPEMATCHINGPLUGIN_API void initExternalModule();
@@ -34,7 +38,7 @@ namespace sofa::component
 		SOFA_SHAPEMATCHINGPLUGIN_API const char* getModuleVersion();
 		SOFA_SHAPEMATCHINGPLUGIN_API const char* getModuleLicense();
 		SOFA_SHAPEMATCHINGPLUGIN_API const char* getModuleDescription();
-		SOFA_SHAPEMATCHINGPLUGIN_API const char* getModuleComponentList();
+		SOFA_SHAPEMATCHINGPLUGIN_API void registerObjects(sofa::core::ObjectFactory* factory);
 	}
 
 	void initShapeMatchingPlugin()
@@ -44,6 +48,9 @@ namespace sofa::component
 
 	void initExternalModule()
 	{
+		// make sure that this plugin is registered into the PluginManager
+        sofa::helper::system::PluginManager::getInstance().registerPlugin(MODULE_NAME);
+
 		static bool first = true;
 		if (first)
 		{
@@ -53,12 +60,12 @@ namespace sofa::component
 
 	const char* getModuleName()
 	{
-		return shapematching::MODULE_NAME;
+		return MODULE_NAME;
 	}
 
 	const char* getModuleVersion()
 	{
-		return shapematching::MODULE_VERSION;
+		return MODULE_VERSION;
 	}
 
 	const char* getModuleLicense()
@@ -71,11 +78,10 @@ namespace sofa::component
 		return "Plugin with ShapeMatchingPlugin";
 	}
 
-	const char* getModuleComponentList()
+	void registerObjects(sofa::core::ObjectFactory* factory)
 	{
-		/// string containing the names of the classes provided by the plugin
-		static std::string classes = sofa::core::ObjectFactory::getInstance()->listClassesFromTarget(sofa_tostring(SOFA_TARGET));
-		return classes.c_str();
+		registerShapeMatchingForceField(factory);
+		registerShapeMatchingRotationFinder(factory);
 	}
 
-} // namespace sofa::component
+} // namespace shapematchingplugin

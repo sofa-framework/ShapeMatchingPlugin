@@ -36,7 +36,7 @@
  *	"Meshless Deformations Based on Shape Matching" (Muller, Heidelberger, Teschner and Gross)
  *
  */
-namespace sofa::component::container
+namespace shapematchingplugin
 {
 
 template <class DataTypes>
@@ -120,4 +120,4 @@ public:
 extern template class SOFA_SHAPEMATCHINGPLUGIN_API ShapeMatchingRotationFinder< defaulttype::Vec3Types >;
 #endif
 
-} // namespace sofa::component::container
+} // namespace shapematchingplugin

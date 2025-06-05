@@ -24,6 +24,8 @@
 #include <sofa/config.h>
 #include <sofa/config/sharedlibrary_defines.h>
 
+using namespace sofa;
+
 #define SHAPEMATCHINGPLUGIN_VERSION @PROJECT_VERSION@
 
 #ifdef SOFA_BUILD_SHAPEMATCHINGPLUGIN
@@ -33,7 +35,7 @@
 #  define SOFA_SHAPEMATCHINGPLUGIN_API SOFA_IMPORT_DYNAMIC_LIBRARY
 #endif
 
-namespace shapematching
+namespace shapematchingplugin
 {
     constexpr const char* MODULE_NAME = "@PROJECT_NAME@";
     constexpr const char* MODULE_VERSION = "@PROJECT_VERSION@";
