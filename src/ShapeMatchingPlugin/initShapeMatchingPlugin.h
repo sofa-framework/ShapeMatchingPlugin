@@ -24,9 +24,9 @@
 ******************************************************************************/
 #include <ShapeMatchingPlugin/config.h>
 
-namespace sofa::component
+namespace shapematchingplugin
 {
 
 void SOFA_SHAPEMATCHINGPLUGIN_API initShapeMatchingPlugin();
 
-} // namespace sofa::component
+} // namespace shapematchingplugin

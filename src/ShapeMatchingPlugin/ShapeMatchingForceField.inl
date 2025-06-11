@@ -28,7 +28,7 @@
 #include <assert.h>
 #include <iostream>
 
-namespace sofa::component::forcefield
+namespace shapematchingplugin
 {
 
 template<class DataTypes>
@@ -47,7 +47,7 @@ void ShapeMatchingForceField<DataTypes>::init()
 
     if (!l_rotationFinder.get())
     {
-        sofa::core::sptr< container::ShapeMatchingRotationFinder<DataTypes>> rotationFinder;
+        sofa::core::sptr< ShapeMatchingRotationFinder<DataTypes>> rotationFinder;
         this->getContext()->get(rotationFinder);
         if (!rotationFinder)
         {
@@ -148,4 +148,4 @@ void ShapeMatchingForceField<DataTypes>::draw(const core::visual::VisualParams* 
 }
 
 
-} // namespace sofa::component::forcefield
+} // namespace shapematchingplugin
